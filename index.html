@@ -319,8 +319,9 @@ a { text-decoration: none; color: inherit; }
 .sched-card {
   background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--radius); overflow: hidden;
+  display: flex; flex-direction: column;
 }
-.sched-top { padding: 20px; }
+.sched-top { padding: 20px; flex: 1; }
 .sched-day {
   font-family: 'Bebas Neue', sans-serif; font-size: .8rem; letter-spacing: .22em;
   color: var(--gold); text-transform: uppercase; margin-bottom: 6px;
@@ -331,6 +332,17 @@ a { text-decoration: none; color: inherit; }
 .course-icon { font-size: 1.2rem; }
 .course-name { font-size: .88rem; }
 .course-loc { font-size: .75rem; color: var(--muted); }
+.sched-actions { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+.sched-btn {
+  flex: 1; padding: 8px 6px; border-radius: 8px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.05); color: var(--text); font-family: inherit;
+  font-size: .78rem; font-weight: 600; cursor: pointer; text-align: center;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.sched-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+.sched-btn.btn-pairings:hover { border-color: var(--blue); color: #60a5fa; }
+.sched-btn.btn-matchups:hover { border-color: var(--gold); color: var(--gold); }
+.sched-btn.btn-results:hover { border-color: var(--green); color: var(--green); }
 
 /* ============================================================
    PAIRINGS WIDGET
@@ -877,6 +889,11 @@ function computeTeamPoints() {
           <div class="course-icon">⛳</div>
           <div><div class="course-name">Old Del Monte Golf Course</div><div class="course-loc">Monterey, CA · Est. 1897 · 4 pts available</div></div>
         </div>
+        <div class="sched-actions">
+          <button class="sched-btn btn-pairings" onclick="openPairingsModal('r1')">Set Pairings</button>
+          <button class="sched-btn btn-matchups" onclick="openMatchupsView('r1')">See Matchups</button>
+          <button class="sched-btn btn-results">Enter Results</button>
+        </div>
       </div>
       <div class="sched-card">
         <div class="sched-top">
@@ -890,6 +907,11 @@ function computeTeamPoints() {
           <div class="course-icon">⛳</div>
           <div><div class="course-name">Black Horse Golf Course</div><div class="course-loc">Fort Ord, Monterey, CA · 4 pts available</div></div>
         </div>
+        <div class="sched-actions">
+          <button class="sched-btn btn-pairings" onclick="openPairingsModal('r2')">Set Pairings</button>
+          <button class="sched-btn btn-matchups" onclick="openMatchupsView('r2')">See Matchups</button>
+          <button class="sched-btn btn-results">Enter Results</button>
+        </div>
       </div>
       <div class="sched-card" id="final-sched">
         <div class="sched-top">
@@ -902,6 +924,11 @@ function computeTeamPoints() {
         <div class="sched-course">
           <div class="course-icon">🏆</div>
           <div><div class="course-name">Bayonet Golf Course</div><div class="course-loc">Fort Ord, Monterey, CA · 8 pts available</div></div>
+        </div>
+        <div class="sched-actions">
+          <button class="sched-btn btn-pairings" onclick="openPairingsModal('r3')">Set Matchups</button>
+          <button class="sched-btn btn-matchups" onclick="openMatchupsView('r3')">See Matchups</button>
+          <button class="sched-btn btn-results">Enter Results</button>
         </div>
       </div>
     </div>
@@ -1121,6 +1148,32 @@ function computeTeamPoints() {
   <div class="modal modal-relative" id="modal">
     <button class="modal-close" onclick="closeModalDirect()">✕</button>
     <div id="modal-content"><!-- rendered by JS --></div>
+  </div>
+</div>
+
+<!-- PAIRINGS MODAL -->
+<div class="modal-overlay" id="pm-overlay" onclick="closePairingsModal(event)">
+  <div class="modal modal-relative" style="max-width:1100px;width:100%">
+    <button class="modal-close" onclick="closePairingsModalDirect()">✕</button>
+    <div style="padding:24px 32px;border-bottom:1px solid var(--line)">
+      <div style="font-family:'Teko',sans-serif;font-size:.8rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase" id="pm-modal-label">Set Pairings</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.04em" id="pm-title"></div>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:6px" id="pm-subtitle"></p>
+    </div>
+    <div style="padding:24px 32px;overflow-y:auto;max-height:calc(90vh - 130px)">
+      <div class="pairing-layout" id="pm-pairing-layout"></div>
+      <div class="pairing-progress" id="pm-pairing-progress" style="margin-top:16px"></div>
+      <button class="pairing-reset-btn" id="pm-reset-btn" onclick="mResetPairings()">↺ Reset All Pairings</button>
+      <div class="matchup-section" id="pm-matchup-section" style="display:none;margin-top:24px">
+        <div class="matchup-header">
+          <div>
+            <div class="matchup-header-title">⚔️ Matchup Selection</div>
+            <div class="matchup-header-sub" id="pm-matchup-sub">Captains alternate nominating pairings. Doe Boys nominate first.</div>
+          </div>
+        </div>
+        <div id="pm-matchup-steps"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1742,6 +1795,636 @@ function renderMatchupSteps() {
 }
 
 renderPairings();
+
+/* ---- PAIRINGS MODAL ---- */
+
+function makeFreshRoundState(round) {
+  if (round === 'r3') {
+    return {
+      dsrPlayers: ['westbrook','neimeyer','conway','villamor','javier','gonzalez','hull','li'],
+      doePlayers: ['doe','bojorquez','cressio','slattery','flores','peterson','weekes','lopez'],
+      matchups: [null,null,null,null,null,null,null,null],
+    };
+  }
+  return {
+    dsrPool: ['westbrook','neimeyer','conway','villamor','javier','gonzalez','hull','li'],
+    doePool: ['doe','bojorquez','cressio','slattery','flores','peterson','weekes','lopez'],
+    dsrPairs: [[],[],[],[]],
+    doePairs: [[],[],[],[]],
+    matchups: [null,null,null,null],
+  };
+}
+
+var roundPairingStates = { r1: makeFreshRoundState('r1'), r2: makeFreshRoundState('r2'), r3: makeFreshRoundState('r3') };
+var activePairingRound = null;
+var mPendingNom = null;
+
+function saveRoundStates() {
+  try { localStorage.setItem('ltdcup-pairings', JSON.stringify(roundPairingStates)); } catch(e) {}
+}
+
+function loadRoundStates() {
+  try {
+    var saved = localStorage.getItem('ltdcup-pairings');
+    if (!saved) return;
+    var parsed = JSON.parse(saved);
+    ['r1','r2','r3'].forEach(function(r) { if (parsed[r]) roundPairingStates[r] = parsed[r]; });
+  } catch(e) {}
+}
+
+loadRoundStates();
+
+var ROUND_TITLES = {
+  r1: 'Round 1 · Old Del Monte',
+  r2: 'Round 2 · Black Horse',
+  r3: 'Final Round · Bayonet',
+};
+
+var ROUND_SUBTITLES = {
+  r1: 'Drag players into pairs. Once all four pairs per team are set, captains alternate nominating matchups.',
+  r2: 'Drag players into pairs. Once all four pairs per team are set, captains alternate nominating matchups.',
+  r3: 'Captains alternate nominating players for individual 1v1 matches. Doe Boys nominate first.',
+};
+
+function openPairingsModal(round) {
+  activePairingRound = round;
+  mPendingNom = null;
+  var isR3 = round === 'r3';
+  document.getElementById('pm-modal-label').textContent = isR3 ? 'Set Matchups' : 'Set Pairings';
+  document.getElementById('pm-title').textContent = ROUND_TITLES[round];
+  document.getElementById('pm-subtitle').textContent = ROUND_SUBTITLES[round];
+  document.getElementById('pm-reset-btn').textContent = isR3 ? '↺ Reset All Matchups' : '↺ Reset All Pairings';
+  document.getElementById('pm-matchup-sub').textContent = isR3
+    ? 'Captains alternate nominating players for 1v1 matches. Doe Boys nominate first.'
+    : 'Captains alternate nominating pairings. Doe Boys nominate first.';
+  renderModalPairings();
+  document.getElementById('pm-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePairingsModal(e) {
+  if (e && e.target !== document.getElementById('pm-overlay')) return;
+  closePairingsModalDirect();
+}
+
+function closePairingsModalDirect() {
+  document.getElementById('pm-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function getModalState() { return roundPairingStates[activePairingRound]; }
+
+function renderModalPairings() {
+  var isR3 = activePairingRound === 'r3';
+  document.getElementById('pm-pairing-layout').style.display = isR3 ? 'none' : '';
+  document.getElementById('pm-reset-btn').style.display = isR3 ? 'none' : '';
+
+  if (isR3) {
+    document.getElementById('pm-matchup-section').style.display = '';
+    renderR3MatchupSteps();
+    return;
+  }
+
+  var layout = document.getElementById('pm-pairing-layout');
+  layout.innerHTML = '';
+  buildModalTeamPanel('dsr');
+  buildModalTeamPanel('doe');
+  renderModalProgress();
+  var state = getModalState();
+  var allPaired = state.dsrPairs.every(function(p){ return p.length===2; }) &&
+                  state.doePairs.every(function(p){ return p.length===2; });
+  var sec = document.getElementById('pm-matchup-section');
+  if (sec) {
+    if (allPaired) { sec.style.display = ''; renderModalMatchupSteps(); }
+    else sec.style.display = 'none';
+  }
+}
+
+function buildModalTeamPanel(team) {
+  var state = getModalState();
+  var isRed = team === 'dsr';
+  var col = isRed ? 'red' : 'blue';
+  var td = TEAMS[team];
+  var pool = isRed ? state.dsrPool : state.doePool;
+  var pairs = isRed ? state.dsrPairs : state.doePairs;
+  var layout = document.getElementById('pm-pairing-layout');
+
+  var wrap = document.createElement('div');
+  wrap.className = 'pairing-team-panel';
+
+  var h = '<div class="pairing-team-header ' + col + '">'
+    + '<div class="team-badge badge-' + col + '">' + td.abbr + '</div>'
+    + '<div><div class="pairing-team-title">' + td.name + '</div>'
+    + '<div style="font-size:.75rem;color:var(--muted)">Captain: ' + td.captain + '</div>'
+    + '</div></div>';
+
+  h += '<div class="pool-label">Unassigned Players</div>'
+    + '<div class="player-pool" id="pm-pool-' + team + '">';
+  if (pool.length === 0) {
+    h += '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:.78rem;padding:8px;opacity:.6">All players assigned ✓</div>';
+  } else {
+    pool.forEach(function(pid){ h += buildModalMiniCard(pid, team, true, -1); });
+  }
+  h += '</div>';
+
+  h += '<div class="pool-label" style="margin-top:4px">Pairs</div>'
+    + '<div class="pairs-section">';
+  pairs.forEach(function(pair, idx) {
+    var done = pair.length === 2;
+    var chcp = null;
+    if (done && activePairingRound === 'r2') chcp = 'CH ' + r2CourseHcp(parseFloat(pHcp(pair)));
+    else if (done && activePairingRound !== 'r1') chcp = 'Team HCP: ' + pHcp(pair);
+    h += '<div class="pair-slot ' + col + '-slot' + (done ? ' complete' : '') + '" id="pm-pair-' + team + '-' + idx + '">'
+      + '<div class="pair-label"><span>Pair ' + (idx+1) + '</span>'
+      + (chcp ? '<span class="pair-hcp-combined">' + chcp + '</span>' : '')
+      + '</div><div class="pair-players">';
+    if (pair.length === 0) h += '<div class="pair-empty-hint" style="width:100%">Drop two players here</div>';
+    pair.forEach(function(pid){ h += buildModalMiniCard(pid, team, false, idx); });
+    h += '</div></div>';
+  });
+  h += '</div>';
+
+  wrap.innerHTML = h;
+  layout.appendChild(wrap);
+
+  var poolEl = document.getElementById('pm-pool-' + team);
+  if (poolEl) {
+    poolEl.addEventListener('dragover', function(e){ e.preventDefault(); });
+    poolEl.addEventListener('drop', function(e){ mOnPoolDrop(e, team); });
+  }
+  pairs.forEach(function(_, idx) {
+    var slot = document.getElementById('pm-pair-' + team + '-' + idx);
+    if (!slot) return;
+    slot.addEventListener('dragover', function(e){ e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', function(){ slot.classList.remove('drag-over'); });
+    slot.addEventListener('drop', function(e){ mOnPairDrop(e, team, idx); });
+  });
+  pool.forEach(function(pid){ mAttachDragListeners(pid, team, true, -1); });
+}
+
+function courseHcp(idx) {
+  return Math.round(idx * (126 / 113) + (70.6 - 72));
+}
+
+function r2CourseHcp(teamIdx) {
+  return Math.round(teamIdx * (125 / 113) + (69.4 - 72));
+}
+
+function mPairHcpLabel(pair) {
+  if (activePairingRound === 'r1') {
+    return pair.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ');
+  }
+  if (activePairingRound === 'r2') {
+    return 'CH ' + r2CourseHcp(parseFloat(pHcp(pair)));
+  }
+  return 'HCP ' + pHcp(pair);
+}
+
+function buildModalMiniCard(pid, team, draggable, pairIdx) {
+  var p = getPlayerById(pid);
+  var col = team === 'dsr' ? 'red' : 'blue';
+  var removeBtn = pairIdx >= 0
+    ? '<button class="remove-btn" onclick="mRemovePairPlayer(\'' + pid + '\',\'' + team + '\',' + pairIdx + ')" title="Remove">✕</button>'
+    : '';
+  var hcpLine = activePairingRound === 'r1'
+    ? 'CH ' + courseHcp(p.hcp)
+    : 'HCP ' + fmt1(p.hcp);
+  return '<div class="mini-card ' + col + '" id="pm-mini-' + pid + '"'
+    + (draggable ? ' draggable="true"' : '') + '>'
+    + '<div class="mini-avatar">' + pPhoto(pid) + '</div>'
+    + '<div style="flex:1;min-width:0">'
+    + '<div class="mini-name">' + p.name.split(' ').pop() + '</div>'
+    + '<div class="mini-hcp">' + hcpLine + '</div>'
+    + '</div>' + removeBtn + '</div>';
+}
+
+function mAttachDragListeners(pid, team, fromPool, fromPairIdx) {
+  var el = document.getElementById('pm-mini-' + pid);
+  if (!el || !el.draggable) return;
+  el.addEventListener('dragstart', function(e) {
+    dragSrc = { pid: pid, team: team, fromPool: fromPool, fromPairIdx: fromPairIdx };
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(function(){ el.classList.add('dragging'); }, 0);
+  });
+  el.addEventListener('dragend', function(){ el.classList.remove('dragging'); });
+}
+
+function mOnPairDrop(e, team, idx) {
+  e.preventDefault();
+  var slot = document.getElementById('pm-pair-' + team + '-' + idx);
+  if (slot) slot.classList.remove('drag-over');
+  if (!dragSrc || dragSrc.team !== team) return;
+  var state = getModalState();
+  var pid = dragSrc.pid, fromPool = dragSrc.fromPool, fromIdx = dragSrc.fromPairIdx;
+  dragSrc = null;
+  var pairs = team === 'dsr' ? state.dsrPairs : state.doePairs;
+  var pool  = team === 'dsr' ? state.dsrPool  : state.doePool;
+  if (!fromPool && fromIdx === idx) return;
+  if (pairs[idx].length >= 2) return;
+  if (pairs[idx].indexOf(pid) > -1) return;
+  if (fromPool) {
+    var i = pool.indexOf(pid); if (i > -1) pool.splice(i, 1);
+  } else {
+    var j = pairs[fromIdx].indexOf(pid); if (j > -1) pairs[fromIdx].splice(j, 1);
+  }
+  pairs[idx].push(pid);
+  state.matchups = [null,null,null,null];
+  mPendingNom = null;
+  renderModalPairings();
+}
+
+function mOnPoolDrop(e, team) {
+  e.preventDefault();
+  if (!dragSrc || dragSrc.team !== team || dragSrc.fromPool) return;
+  var state = getModalState();
+  var pid = dragSrc.pid, fromIdx = dragSrc.fromPairIdx;
+  dragSrc = null;
+  var pairs = team === 'dsr' ? state.dsrPairs : state.doePairs;
+  var pool  = team === 'dsr' ? state.dsrPool  : state.doePool;
+  var i = pairs[fromIdx].indexOf(pid); if (i > -1) { pairs[fromIdx].splice(i,1); pool.push(pid); }
+  state.matchups = [null,null,null,null];
+  mPendingNom = null;
+  renderModalPairings();
+}
+
+function mRemovePairPlayer(pid, team, pairIdx) {
+  var state = getModalState();
+  var pairs = team === 'dsr' ? state.dsrPairs : state.doePairs;
+  var pool  = team === 'dsr' ? state.dsrPool  : state.doePool;
+  var i = pairs[pairIdx].indexOf(pid); if (i > -1) { pairs[pairIdx].splice(i,1); pool.push(pid); }
+  state.matchups = [null,null,null,null];
+  mPendingNom = null;
+  renderModalPairings();
+}
+
+function mResetPairings() {
+  roundPairingStates[activePairingRound] = makeFreshRoundState(activePairingRound);
+  mPendingNom = null;
+  renderModalPairings();
+}
+
+function renderModalProgress() {
+  var el = document.getElementById('pm-pairing-progress');
+  if (!el) return;
+  var state = getModalState();
+  var dsrDone = state.dsrPairs.filter(function(p){ return p.length===2; }).length;
+  var doeDone = state.doePairs.filter(function(p){ return p.length===2; }).length;
+  var mDone   = state.matchups.filter(function(m){ return m!==null; }).length;
+  var steps = [
+    { label: 'DSR pairs (' + dsrDone + '/4)',      done: dsrDone===4, active: dsrDone<4 },
+    { label: 'Doe Boys pairs (' + doeDone + '/4)', done: doeDone===4, active: doeDone<4 && dsrDone===4 },
+    { label: 'Matchups (' + mDone + '/4)',          done: mDone===4,   active: dsrDone===4 && doeDone===4 && mDone<4 },
+  ];
+  el.innerHTML = steps.map(function(s, i) {
+    return (i > 0 ? '<span class="progress-arrow">›</span>' : '')
+      + '<div class="progress-step">'
+      + '<div class="progress-dot ' + (s.done ? 'done' : s.active ? 'active' : '') + '"></div>'
+      + '<span>' + s.label + '</span></div>';
+  }).join('');
+  saveRoundStates();
+}
+
+function mNominate(stepIdx, nomTeam, pairIdx) {
+  mPendingNom = { stepIdx: stepIdx, nomTeam: nomTeam, pairIdx: pairIdx };
+  renderModalMatchupSteps();
+}
+
+function mConfirmMatchup(stepIdx, nomTeam, nomPI, pickTeam, pickPI) {
+  var state = getModalState();
+  var m = {}; m[nomTeam] = nomPI; m[pickTeam] = pickPI;
+  state.matchups[stepIdx] = m;
+  mPendingNom = null;
+  var usedDsr = new Set(state.matchups.filter(Boolean).map(function(x){ return x.dsr; }));
+  var usedDoe = new Set(state.matchups.filter(Boolean).map(function(x){ return x.doe; }));
+  if (state.matchups.filter(Boolean).length === 3) {
+    var remDsr = [0,1,2,3].find(function(i){ return !usedDsr.has(i); });
+    var remDoe = [0,1,2,3].find(function(i){ return !usedDoe.has(i); });
+    if (remDsr !== undefined && remDoe !== undefined) state.matchups[3] = { dsr: remDsr, doe: remDoe };
+  }
+  renderModalMatchupSteps();
+  renderModalProgress();
+}
+
+function mClearMatchup(stepIdx) {
+  var state = getModalState();
+  for (var i = stepIdx; i < 4; i++) state.matchups[i] = null;
+  mPendingNom = null;
+  renderModalMatchupSteps();
+  renderModalProgress();
+}
+
+function mMatchupResultHTML(matchup) {
+  var state = getModalState();
+  var dp = state.dsrPairs[matchup.dsr];
+  var bp = state.doePairs[matchup.doe];
+  return '<div class="matchup-card">'
+    + '<div class="matchup-pair-display">'
+    + '<div class="matchup-pair-names" style="color:#ef4444">' + pNames(dp) + '</div>'
+    + '<div class="matchup-pair-hcp">' + mPairHcpLabel(dp) + '</div>'
+    + '</div><div class="matchup-vs">VS</div>'
+    + '<div class="matchup-pair-display">'
+    + '<div class="matchup-pair-names" style="color:#60a5fa">' + pNames(bp) + '</div>'
+    + '<div class="matchup-pair-hcp">' + mPairHcpLabel(bp) + '</div>'
+    + '</div></div>';
+}
+
+function mNomBtnHTML(si, nomTeam, pi, pair, selected) {
+  var col = nomTeam === 'doe' ? 'blue' : 'red';
+  var cls = 'nom-pair-btn ' + col + (selected ? ' selected ' + col : '');
+  var action = selected ? 'style="pointer-events:none"' : 'onclick="mNominate(' + si + ',\'' + nomTeam + '\',' + pi + ')"';
+  return '<button class="' + cls + '" ' + action + '>'
+    + '<div style="display:flex;gap:4px">' + pAvatars(pair) + '</div>'
+    + '<span style="flex:1">' + pNames(pair) + '</span>'
+    + '<span style="color:var(--muted);font-size:.72rem">' + mPairHcpLabel(pair) + '</span>'
+    + '</button>';
+}
+
+function mPickBtnHTML(si, nomTeam, nomPI, pickTeam, pi, pair) {
+  var col = pickTeam === 'doe' ? 'blue' : 'red';
+  return '<button class="nom-pair-btn ' + col + '" onclick="mConfirmMatchup(' + si + ',\'' + nomTeam + '\',' + nomPI + ',\'' + pickTeam + '\',' + pi + ')">'
+    + '<div style="display:flex;gap:4px">' + pAvatars(pair) + '</div>'
+    + '<span style="flex:1">' + pNames(pair) + '</span>'
+    + '<span style="color:var(--muted);font-size:.72rem">' + mPairHcpLabel(pair) + '</span>'
+    + '</button>';
+}
+
+function renderModalMatchupSteps() {
+  var container = document.getElementById('pm-matchup-steps');
+  if (!container) return;
+  var state = getModalState();
+  var usedDsr = new Set(state.matchups.filter(Boolean).map(function(m){ return m.dsr; }));
+  var usedDoe = new Set(state.matchups.filter(Boolean).map(function(m){ return m.doe; }));
+  var h = '';
+
+  MATCHUP_ORDER.forEach(function(step, si) {
+    var matchup  = state.matchups[si];
+    var prevDone = si === 0 || state.matchups[si-1] !== null;
+    var isLocked = !prevDone;
+    var isAuto   = step.nomTeam === 'auto';
+    var isCurrent = mPendingNom && mPendingNom.stepIdx === si;
+
+    h += '<div class="matchup-step' + (isLocked ? ' locked' : '') + (!isLocked && !matchup ? ' active' : '') + '">';
+    h += '<div class="step-info"><div class="step-num">' + (si+1) + '</div>'
+      + '<div class="step-desc">' + (isAuto
+          ? 'Remaining pairs are matched automatically.'
+          : '<strong>' + step.nomLabel + '</strong> a pair, then <strong>' + step.pickLabel + '</strong>.')
+      + '</div></div>';
+
+    if (matchup) {
+      h += mMatchupResultHTML(matchup);
+      h += '<div style="text-align:right"><button onclick="mClearMatchup(' + si + ')" style="background:none;border:none;color:var(--muted);font-size:.78rem;cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--line)">✎ Change</button></div>';
+    } else if (isAuto || isLocked) {
+      h += '<div style="color:var(--muted);font-size:.82rem;padding:8px">'
+        + (isAuto ? 'Complete steps 1–3 to auto-fill.' : 'Awaiting prior steps…')
+        + '</div><div></div>';
+    } else if (isCurrent) {
+      var nomTeam = mPendingNom.nomTeam;
+      var nomPI   = mPendingNom.pairIdx;
+      var nomPair = (nomTeam === 'dsr' ? state.dsrPairs : state.doePairs)[nomPI];
+      var nomCol  = nomTeam === 'doe' ? 'blue' : 'red';
+      var pickTeam  = step.pickTeam;
+      var pickPairs = pickTeam === 'dsr' ? state.dsrPairs : state.doePairs;
+      var usedPick  = pickTeam === 'dsr' ? usedDsr : usedDoe;
+      var pickCol   = pickTeam === 'doe' ? 'blue' : 'red';
+      h += '<div class="nomination-area ' + (nomCol === 'red' ? 'red-nom' : 'blue-nom') + '">'
+        + '<div class="nom-label"><span class="' + nomCol + '">✓ ' + step.nomLabel + '</span></div>'
+        + mNomBtnHTML(si, nomTeam, nomPI, nomPair, true) + '</div>';
+      h += '<div class="nomination-area ' + (pickCol === 'red' ? 'red-nom' : 'blue-nom') + '">'
+        + '<div class="nom-label"><span class="' + pickCol + '">' + step.pickLabel + '</span></div>';
+      pickPairs.forEach(function(pair, pi) {
+        if (usedPick.has(pi) || pair.length < 2) return;
+        h += mPickBtnHTML(si, nomTeam, nomPI, pickTeam, pi, pair);
+      });
+      h += '</div>';
+    } else {
+      var nt  = step.nomTeam;
+      var nc  = nt === 'doe' ? 'blue' : 'red';
+      var nps = nt === 'dsr' ? state.dsrPairs : state.doePairs;
+      var un  = nt === 'dsr' ? usedDsr : usedDoe;
+      h += '<div class="nomination-area ' + (nc === 'red' ? 'red-nom' : 'blue-nom') + '">'
+        + '<div class="nom-label"><span class="' + nc + '">' + step.nomLabel + '</span></div>';
+      nps.forEach(function(pair, pi) {
+        if (un.has(pi) || pair.length < 2) return;
+        h += mNomBtnHTML(si, nt, pi, pair, false);
+      });
+      h += '</div>';
+      h += '<div style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem">Select a pair to nominate →</div>';
+    }
+    h += '</div>';
+  });
+
+  container.innerHTML = h;
+  renderModalProgress();
+}
+
+/* ---- R3 SINGLES MATCHUP BUILDER ---- */
+
+var R3_MATCHUP_ORDER = [
+  { nomTeam:'doe', pickTeam:'dsr', nomLabel:'Doe Boys nominate',  pickLabel:'Drawshank choose opponent' },
+  { nomTeam:'dsr', pickTeam:'doe', nomLabel:'Drawshank nominate', pickLabel:'Doe Boys choose opponent'  },
+  { nomTeam:'doe', pickTeam:'dsr', nomLabel:'Doe Boys nominate',  pickLabel:'Drawshank choose opponent' },
+  { nomTeam:'dsr', pickTeam:'doe', nomLabel:'Drawshank nominate', pickLabel:'Doe Boys choose opponent'  },
+  { nomTeam:'doe', pickTeam:'dsr', nomLabel:'Doe Boys nominate',  pickLabel:'Drawshank choose opponent' },
+  { nomTeam:'dsr', pickTeam:'doe', nomLabel:'Drawshank nominate', pickLabel:'Doe Boys choose opponent'  },
+  { nomTeam:'doe', pickTeam:'dsr', nomLabel:'Doe Boys nominate',  pickLabel:'Drawshank choose opponent' },
+  { nomTeam:'auto', nomLabel:'Final matchup — auto assigned', pickLabel:'' },
+];
+
+function r3CourseHcp(idx) {
+  return Math.round(idx * (132 / 113) + (70.6 - 72));
+}
+
+function r3NomPlayer(stepIdx, nomTeam, pid) {
+  mPendingNom = { stepIdx: stepIdx, nomTeam: nomTeam, pid: pid };
+  renderR3MatchupSteps();
+}
+
+function r3ConfirmMatchup(stepIdx, nomTeam, nomPid, pickTeam, pickPid) {
+  var state = getModalState();
+  var m = {}; m[nomTeam] = nomPid; m[pickTeam] = pickPid;
+  state.matchups[stepIdx] = m;
+  mPendingNom = null;
+  var usedDsr = new Set(state.matchups.filter(Boolean).map(function(x){ return x.dsr; }));
+  var usedDoe = new Set(state.matchups.filter(Boolean).map(function(x){ return x.doe; }));
+  if (state.matchups.filter(Boolean).length === 7) {
+    var remDsr = state.dsrPlayers.find(function(p){ return !usedDsr.has(p); });
+    var remDoe = state.doePlayers.find(function(p){ return !usedDoe.has(p); });
+    if (remDsr && remDoe) state.matchups[7] = { dsr: remDsr, doe: remDoe };
+  }
+  renderR3MatchupSteps();
+}
+
+function r3ClearMatchup(stepIdx) {
+  var state = getModalState();
+  for (var i = stepIdx; i < 8; i++) state.matchups[i] = null;
+  mPendingNom = null;
+  renderR3MatchupSteps();
+}
+
+function renderR3Progress() {
+  var el = document.getElementById('pm-pairing-progress');
+  if (!el) return;
+  var state = getModalState();
+  var mDone = state.matchups.filter(Boolean).length;
+  el.innerHTML = '<div class="progress-step">'
+    + '<div class="progress-dot ' + (mDone === 8 ? 'done' : 'active') + '"></div>'
+    + '<span>Individual matchups (' + mDone + '/8)</span></div>';
+  saveRoundStates();
+}
+
+function r3PlayerBtn(pid, col, actionAttr) {
+  var p = getPlayerById(pid);
+  return '<button class="nom-pair-btn ' + col + '" ' + actionAttr + '>'
+    + '<div class="nom-mini-avatar">' + pPhoto(pid) + '</div>'
+    + '<span style="flex:1">' + p.name.split(' ').pop() + '</span>'
+    + '<span style="color:var(--muted);font-size:.72rem">CH ' + r3CourseHcp(p.hcp) + '</span>'
+    + '</button>';
+}
+
+function renderR3MatchupSteps() {
+  var container = document.getElementById('pm-matchup-steps');
+  if (!container) return;
+  var state = getModalState();
+  var usedDsr = new Set(state.matchups.filter(Boolean).map(function(m){ return m.dsr; }));
+  var usedDoe = new Set(state.matchups.filter(Boolean).map(function(m){ return m.doe; }));
+  var h = '';
+
+  R3_MATCHUP_ORDER.forEach(function(step, si) {
+    var matchup  = state.matchups[si];
+    var prevDone = si === 0 || state.matchups[si-1] !== null;
+    var isLocked = !prevDone;
+    var isAuto   = step.nomTeam === 'auto';
+    var isCurrent = mPendingNom && mPendingNom.stepIdx === si;
+
+    h += '<div class="matchup-step' + (isLocked ? ' locked' : '') + (!isLocked && !matchup ? ' active' : '') + '">';
+    h += '<div class="step-info"><div class="step-num">' + (si+1) + '</div>'
+      + '<div class="step-desc">' + (isAuto
+          ? 'Remaining players are matched automatically.'
+          : '<strong>' + step.nomLabel + '</strong> a player, then <strong>' + step.pickLabel + '</strong>.')
+      + '</div></div>';
+
+    if (matchup) {
+      var dp = getPlayerById(matchup.dsr);
+      var bp = getPlayerById(matchup.doe);
+      h += '<div class="matchup-card">'
+        + '<div class="matchup-pair-display">'
+        + '<div class="matchup-pair-names" style="color:#ef4444">' + dp.name.split(' ').pop() + '</div>'
+        + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(dp.hcp) + '</div>'
+        + '</div><div class="matchup-vs">VS</div>'
+        + '<div class="matchup-pair-display">'
+        + '<div class="matchup-pair-names" style="color:#60a5fa">' + bp.name.split(' ').pop() + '</div>'
+        + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(bp.hcp) + '</div>'
+        + '</div></div>';
+      h += '<div style="text-align:right"><button onclick="r3ClearMatchup(' + si + ')" style="background:none;border:none;color:var(--muted);font-size:.78rem;cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--line)">✎ Change</button></div>';
+
+    } else if (isAuto || isLocked) {
+      h += '<div style="color:var(--muted);font-size:.82rem;padding:8px">'
+        + (isAuto ? 'Complete prior steps to auto-fill.' : 'Awaiting prior steps…')
+        + '</div><div></div>';
+
+    } else if (isCurrent) {
+      var nomTeam  = mPendingNom.nomTeam;
+      var nomPid   = mPendingNom.pid;
+      var nomCol   = nomTeam === 'doe' ? 'blue' : 'red';
+      var pickTeam = step.pickTeam;
+      var pickList = pickTeam === 'dsr' ? state.dsrPlayers : state.doePlayers;
+      var usedPick = pickTeam === 'dsr' ? usedDsr : usedDoe;
+      var pickCol  = pickTeam === 'doe' ? 'blue' : 'red';
+
+      h += '<div class="nomination-area ' + (nomCol === 'red' ? 'red-nom' : 'blue-nom') + '">'
+        + '<div class="nom-label"><span class="' + nomCol + '">✓ ' + step.nomLabel + '</span></div>'
+        + r3PlayerBtn(nomPid, nomCol + ' selected ' + nomCol, 'style="pointer-events:none"')
+        + '</div>';
+      h += '<div class="nomination-area ' + (pickCol === 'red' ? 'red-nom' : 'blue-nom') + '">'
+        + '<div class="nom-label"><span class="' + pickCol + '">' + step.pickLabel + '</span></div>';
+      pickList.forEach(function(pid) {
+        if (usedPick.has(pid)) return;
+        h += r3PlayerBtn(pid, pickCol, 'onclick="r3ConfirmMatchup(' + si + ',\'' + nomTeam + '\',\'' + nomPid + '\',\'' + pickTeam + '\',\'' + pid + '\')"');
+      });
+      h += '</div>';
+
+    } else {
+      var nt      = step.nomTeam;
+      var nc      = nt === 'doe' ? 'blue' : 'red';
+      var nomList = nt === 'dsr' ? state.dsrPlayers : state.doePlayers;
+      var used    = nt === 'dsr' ? usedDsr : usedDoe;
+
+      h += '<div class="nomination-area ' + (nc === 'red' ? 'red-nom' : 'blue-nom') + '">'
+        + '<div class="nom-label"><span class="' + nc + '">' + step.nomLabel + '</span></div>';
+      nomList.forEach(function(pid) {
+        if (used.has(pid)) return;
+        h += r3PlayerBtn(pid, nc, 'onclick="r3NomPlayer(' + si + ',\'' + nt + '\',\'' + pid + '\')"');
+      });
+      h += '</div>';
+      h += '<div style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem">Select a player to nominate →</div>';
+    }
+    h += '</div>';
+  });
+
+  container.innerHTML = h;
+  renderR3Progress();
+}
+
+/* ---- SEE MATCHUPS VIEW ---- */
+
+function openMatchupsView(round) {
+  var state = roundPairingStates[round];
+  var titles = { r1: 'Round 1 · Old Del Monte', r2: 'Round 2 · Black Horse', r3: 'Final Round · Bayonet' };
+  var matchups = state.matchups;
+  var hasAny = matchups.some(Boolean);
+
+  var html = '<div style="padding:28px 32px;border-bottom:1px solid var(--line)">'
+    + '<div style="font-family:\'Teko\',sans-serif;font-size:.8rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:4px">Matchups</div>'
+    + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;letter-spacing:.04em">' + titles[round] + '</div>'
+    + '</div>'
+    + '<div style="padding:24px 32px">';
+
+  if (!hasAny) {
+    html += '<p style="color:var(--muted);font-size:.9rem">No matchups have been set for this round yet. Use the Set Pairings button to create them.</p>';
+  } else if (round === 'r3') {
+    matchups.forEach(function(m, i) {
+      if (!m) return;
+      var dp = getPlayerById(m.dsr);
+      var bp = getPlayerById(m.doe);
+      html += '<div class="matchup-card" style="margin-bottom:8px">'
+        + '<div class="matchup-pair-display">'
+        + '<div class="matchup-pair-names" style="color:#ef4444">' + dp.name.split(' ').pop() + '</div>'
+        + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(dp.hcp) + '</div>'
+        + '</div><div class="matchup-vs">VS</div>'
+        + '<div class="matchup-pair-display">'
+        + '<div class="matchup-pair-names" style="color:#60a5fa">' + bp.name.split(' ').pop() + '</div>'
+        + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(bp.hcp) + '</div>'
+        + '</div></div>';
+    });
+  } else {
+    matchups.forEach(function(m) {
+      if (!m) return;
+      var dp = state.dsrPairs[m.dsr];
+      var bp = state.doePairs[m.doe];
+      if (!dp || !bp || dp.length < 2 || bp.length < 2) return;
+      var dpHcp = round === 'r1'
+        ? dp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ')
+        : 'CH ' + r2CourseHcp(parseFloat(pHcp(dp)));
+      var bpHcp = round === 'r1'
+        ? bp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ')
+        : 'CH ' + r2CourseHcp(parseFloat(pHcp(bp)));
+      html += '<div class="matchup-card" style="margin-bottom:8px">'
+        + '<div class="matchup-pair-display">'
+        + '<div class="matchup-pair-names" style="color:#ef4444">' + pNames(dp) + '</div>'
+        + '<div class="matchup-pair-hcp">' + dpHcp + '</div>'
+        + '</div><div class="matchup-vs">VS</div>'
+        + '<div class="matchup-pair-display">'
+        + '<div class="matchup-pair-names" style="color:#60a5fa">' + pNames(bp) + '</div>'
+        + '<div class="matchup-pair-hcp">' + bpHcp + '</div>'
+        + '</div></div>';
+    });
+  }
+
+  html += '</div>';
+  document.getElementById('round-modal-content').innerHTML = html;
+  document.getElementById('round-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
 /* ---- ROUND INFO MODAL ---- */
 function openRoundModal(key) {
