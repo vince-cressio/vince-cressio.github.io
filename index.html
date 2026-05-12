@@ -1005,15 +1005,15 @@ function computeTeamPoints() {
       </div>
     </div>
     <div class="upcoming-matchups">
-      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 1: Old Del Monte</div>
+      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 1: Old Del Monte · 4 pts</div>
       <div class="matchup-inline-grid" id="upcoming-matchups-grid-r1"><!-- rendered by JS --></div>
     </div>
     <div class="upcoming-matchups">
-      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 2: Black Horse</div>
+      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 2: Black Horse · 4 pts</div>
       <div class="matchup-inline-grid" id="upcoming-matchups-grid-r2"><!-- rendered by JS --></div>
     </div>
     <div class="upcoming-matchups">
-      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Final Round: Bayonet</div>
+      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Final Round: Bayonet · 8 pts</div>
       <div class="matchup-inline-grid" id="upcoming-matchups-grid-r3"><!-- rendered by JS --></div>
     </div>
     <div class="score-tables">
@@ -2979,7 +2979,7 @@ function openResultsModal(roundId) {
   _resScore = null;
   _resWinner = null;
 
-  var title = roundId === 'r1' ? 'Round 1: Old Del Monte' : roundId === 'r2' ? 'Round 2: Black Horse' : 'Round 3: Spyglass Hill';
+  var title = roundId === 'r1' ? 'Round 1: Old Del Monte' : roundId === 'r2' ? 'Round 2: Black Horse' : 'Round 3: Bayonet';
   document.getElementById('results-modal-title').textContent = 'Enter Results · ' + title;
   renderResultsLeft();
   document.getElementById('results-right').innerHTML = '<div class="results-right-empty">Select a matchup to enter results</div>';
