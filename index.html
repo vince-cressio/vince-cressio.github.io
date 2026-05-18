@@ -1006,7 +1006,23 @@ function computeTeamPoints() {
     </div>
     <div class="upcoming-matchups">
       <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 1: Old Del Monte · 4 pts</div>
-      <div class="matchup-inline-grid" id="upcoming-matchups-grid-r1"><!-- rendered by JS --></div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;">
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+          <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FORMAT</span> &nbsp;Better Ball</span>
+          <span style="color:rgba(255,255,255,.15)">|</span>
+          <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FIRST TEE TIME</span> &nbsp;9:00 AM</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">
+          <span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;white-space:nowrap;">DRESS CODE</span>
+          <span style="color:#60a5fa;white-space:nowrap;">Doe Boys — Black Shirt · Grey Pants/Shorts · White Hat</span>
+          <span style="color:rgba(255,255,255,.15)">|</span>
+          <span style="color:#f87171;white-space:nowrap;">Drawshank — Grey Shirt · Black Pants/Shorts · Black Hat</span>
+        </div>
+        <div style="color:var(--muted);border-top:1px solid var(--line);padding-top:8px;">
+          ⛳ Old Del Monte has no driving range — we recommend using the range at <a href="https://www.google.com/maps/place/monterey+pines+golf+course/data=!4m2!3m1!1s0x808de5ac88d478ad:0x5a335585f8348b97?sa=X&ved=1t:242&ictx=111" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px;">Monterey Pines Golf Course</a>, right around the corner.
+        </div>
+      </div>
+      <div class="matchup-inline-grid" id="upcoming-matchups-grid-r1" style="grid-template-columns:1fr"><!-- rendered by JS --></div>
     </div>
     <div class="upcoming-matchups">
       <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 2: Black Horse · 4 pts</div>
@@ -1108,7 +1124,6 @@ function computeTeamPoints() {
           <div><div class="course-name">Old Del Monte Golf Course</div><div class="course-loc">Monterey, CA · Est. 1897 · 4 pts available</div></div>
         </div>
         <div class="sched-actions">
-          <button class="sched-btn btn-pairings" onclick="openPairingsModal('r1')">Set Pairings</button>
           <button class="sched-btn btn-matchups" onclick="openMatchupsView('r1')">See Matchups</button>
           <button class="sched-btn btn-results" onclick="openResultsModal('r1')">Enter Results</button>
         </div>
@@ -2097,7 +2112,22 @@ function makeFreshRoundState(round) {
   };
 }
 
-var roundPairingStates = { r1: makeFreshRoundState('r1'), r2: makeFreshRoundState('r2'), r3: makeFreshRoundState('r3') };
+var roundPairingStates = {
+  r1: {
+    dsrPool: [],
+    doePool: [],
+    dsrPairs: [['westbrook','conway'],['neimeyer','hull'],['villamor','javier'],['gonzalez','li']],
+    doePairs: [['cressio','slattery'],['bojorquez','peterson'],['doe','lopez'],['weekes','flores']],
+    matchups: [
+      {dsr:0, doe:0, teeTime:'9:00 AM'},
+      {dsr:1, doe:1, teeTime:'9:10 AM'},
+      {dsr:2, doe:2, teeTime:'9:20 AM'},
+      {dsr:3, doe:3, teeTime:'9:40 AM'},
+    ],
+  },
+  r2: makeFreshRoundState('r2'),
+  r3: makeFreshRoundState('r3'),
+};
 var activePairingRound = null;
 var mPendingNom = null;
 
@@ -2157,7 +2187,11 @@ function renderUpcomingMatchups(roundId) {
     } else {
       midHtml = '<div class="matchup-inline-vs">VS</div>';
     }
-    return '<div class="matchup-inline-row">'
+    var teeHtml = m.teeTime
+      ? '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;color:var(--gold);letter-spacing:.08em;flex-shrink:0;min-width:82px;text-align:center;line-height:1">' + m.teeTime + '</div>'
+      : '';
+    var rowHtml = '<div class="matchup-inline-row">'
+      + teeHtml
       + '<div class="matchup-inline-side">'
       + '<div class="matchup-inline-names red">' + dsrLabel + '</div>'
       + '<div class="matchup-inline-hcp">' + dpHcp + '</div>'
@@ -2168,6 +2202,12 @@ function renderUpcomingMatchups(roundId) {
       + '<div class="matchup-inline-hcp">' + bpHcp + '</div>'
       + '</div>'
       + '</div>';
+    if (i === 2) {
+      rowHtml += '<div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">'
+        + '⚠ PLEASE NOTE the twenty minute tee time gap between Matchup #3 and Matchup #4.'
+        + '</div>';
+    }
+    return rowHtml;
   }).join('');
 }
 renderUpcomingMatchups('r1');
@@ -2736,18 +2776,61 @@ function openMatchupsView(round) {
         + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(bp.hcp) + '</div>'
         + '</div></div>';
     });
+  } else if (round === 'r1') {
+    html += '<div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;">'
+      + '<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">'
+      + '<span style="color:var(--muted)"><span style="color:var(--gold);font-family:\'Teko\',sans-serif;letter-spacing:.08em;font-size:.85rem;">FORMAT</span> &nbsp;Better Ball</span>'
+      + '<span style="color:rgba(255,255,255,.15)">|</span>'
+      + '<span style="color:var(--muted)"><span style="color:var(--gold);font-family:\'Teko\',sans-serif;letter-spacing:.08em;font-size:.85rem;">FIRST TEE TIME</span> &nbsp;9:00 AM</span>'
+      + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">'
+      + '<span style="color:var(--gold);font-family:\'Teko\',sans-serif;letter-spacing:.08em;font-size:.85rem;white-space:nowrap;">DRESS CODE</span>'
+      + '<span style="color:#60a5fa;white-space:nowrap;">Doe Boys — Black Shirt · Grey Pants/Shorts · White Hat</span>'
+      + '<span style="color:rgba(255,255,255,.15)">|</span>'
+      + '<span style="color:#f87171;white-space:nowrap;">Drawshank — Grey Shirt · Black Pants/Shorts · Black Hat</span>'
+      + '</div>'
+      + '<div style="color:var(--muted);border-top:1px solid var(--line);padding-top:8px;">'
+      + '⛳ Old Del Monte has no driving range — we recommend using the range at <a href="https://www.google.com/maps/place/monterey+pines+golf+course/data=!4m2!3m1!1s0x808de5ac88d478ad:0x5a335585f8348b97?sa=X&ved=1t:242&ictx=111" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px;">Monterey Pines Golf Course</a>, right around the corner.'
+      + '</div>'
+      + '</div>';
+    var r1Rows = '';
+    matchups.forEach(function(m, i) {
+      if (!m) return;
+      var dp = state.dsrPairs[m.dsr];
+      var bp = state.doePairs[m.doe];
+      if (!dp || !bp || dp.length < 2 || bp.length < 2) return;
+      var dpHcp = dp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ');
+      var bpHcp = bp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ');
+      var teeHtml = m.teeTime
+        ? '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;color:var(--gold);letter-spacing:.08em;flex-shrink:0;min-width:82px;text-align:center;line-height:1">' + m.teeTime + '</div>'
+        : '';
+      r1Rows += '<div class="matchup-inline-row">'
+        + teeHtml
+        + '<div class="matchup-inline-side">'
+        + '<div class="matchup-inline-names red">' + pNames(dp) + '</div>'
+        + '<div class="matchup-inline-hcp">' + dpHcp + '</div>'
+        + '</div>'
+        + '<div class="matchup-inline-vs">VS</div>'
+        + '<div class="matchup-inline-side" style="text-align:right">'
+        + '<div class="matchup-inline-names blue">' + pNames(bp) + '</div>'
+        + '<div class="matchup-inline-hcp">' + bpHcp + '</div>'
+        + '</div>'
+        + '</div>';
+      if (i === 2) {
+        r1Rows += '<div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">'
+          + '⚠ PLEASE NOTE the twenty minute tee time gap between Matchup #3 and Matchup #4.'
+          + '</div>';
+      }
+    });
+    html += '<div style="display:flex;flex-direction:column;gap:8px">' + r1Rows + '</div>';
   } else {
     matchups.forEach(function(m) {
       if (!m) return;
       var dp = state.dsrPairs[m.dsr];
       var bp = state.doePairs[m.doe];
       if (!dp || !bp || dp.length < 2 || bp.length < 2) return;
-      var dpHcp = round === 'r1'
-        ? dp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ')
-        : 'CH ' + r2CourseHcp(parseFloat(pHcp(dp)));
-      var bpHcp = round === 'r1'
-        ? bp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ')
-        : 'CH ' + r2CourseHcp(parseFloat(pHcp(bp)));
+      var dpHcp = 'CH ' + r2CourseHcp(parseFloat(pHcp(dp)));
+      var bpHcp = 'CH ' + r2CourseHcp(parseFloat(pHcp(bp)));
       html += '<div class="matchup-card" style="margin-bottom:8px">'
         + '<div class="matchup-pair-display">'
         + '<div class="matchup-pair-names" style="color:#ef4444">' + pNames(dp) + '</div>'
