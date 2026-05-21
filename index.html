@@ -2179,7 +2179,10 @@ function renderUpcomingMatchups(roundId) {
     return;
   }
   var roundResults = (getResults()[roundId]) || {};
-  grid.innerHTML = state.matchups.map(function(m, i) {
+  var noteHtml = roundId === 'r1'
+    ? '<div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">⚠ PLEASE NOTE: Plan your arrival time as though you are teeing off at 9:00 AM; the course is trying to manage the tee time gap so we all play together.</div>'
+    : '';
+  grid.innerHTML = noteHtml + state.matchups.map(function(m, i) {
     if (!m) return '';
     var dp, bp, dpHcp, bpHcp;
     if (isR3) {
@@ -2225,11 +2228,6 @@ function renderUpcomingMatchups(roundId) {
       + '<div class="matchup-inline-hcp">' + bpHcp + '</div>'
       + '</div>'
       + '</div>';
-    if (i === 2) {
-      rowHtml += '<div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">'
-        + '⚠ PLEASE NOTE the twenty minute tee time gap between Matchup #3 and Matchup #4.'
-        + '</div>';
-    }
     return rowHtml;
   }).join('');
 }
@@ -2839,13 +2837,8 @@ function openMatchupsView(round) {
         + '<div class="matchup-inline-hcp">' + bpHcp + '</div>'
         + '</div>'
         + '</div>';
-      if (i === 2) {
-        r1Rows += '<div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">'
-          + '⚠ PLEASE NOTE the twenty minute tee time gap between Matchup #3 and Matchup #4.'
-          + '</div>';
-      }
     });
-    html += '<div style="display:flex;flex-direction:column;gap:8px">' + r1Rows + '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:8px"><div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">⚠ PLEASE NOTE: Plan your arrival time as though you are teeing off at 9:00 AM; the course is trying to manage the tee time gap so we all play together.</div>' + r1Rows + '</div>';
   } else {
     matchups.forEach(function(m) {
       if (!m) return;

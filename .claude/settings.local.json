@@ -8,7 +8,8 @@
       "Bash(claude doctor *)",
       "Bash(Get-Content \"C:\\\\Users\\\\vince\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-vince-vince-cressio-github-io\\\\56676bb4-d5fe-4c6c-9afa-9d8d32ec38ed\\\\tasks\\\\b9iq84yns.output\" -Wait)",
       "Bash(Select-Object -First 50)",
-      "PowerShell(claude doctor *)"
+      "PowerShell(claude doctor *)",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\vince\\\\vince-cressio.github.io\\\\index.html\" | Measure-Object -Line\\).Lines)"
     ]
   }
 }
