@@ -847,6 +847,19 @@ footer img { height: 60px; margin: auto auto 14px; }
 .footer-links a:hover { color: var(--gold); }
 
 /* ============================================================
+   SCORECARD TABLE
+   ============================================================ */
+.sc-table { width: 100%; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }
+.sc-table th, .sc-table td { padding: 7px 10px; text-align: center; border: 1px solid var(--line); min-width: 36px; }
+.sc-table .sc-lbl { text-align: left; font-weight: 600; min-width: 130px; background: var(--panel2); position: sticky; left: 0; z-index: 1; }
+.sc-table thead th { background: var(--panel2); color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+.sc-table thead .sc-lbl { color: var(--muted); }
+.sc-table .sc-sub { background: rgba(240,192,64,.08); color: var(--gold); font-weight: 700; }
+.sc-table tbody tr:nth-child(-n+3) td { color: var(--muted); }
+.sc-table tbody tr:nth-child(-n+3) .sc-lbl { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+.sc-table tbody tr:nth-child(n+4) td { height: 32px; }
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 960px) {
@@ -925,6 +938,69 @@ function fmt1(val) {
 }
 function getPlayerById(id) { return ROSTER.find(p => p.id === id); }
 function initials(name) { return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+
+var DEL_MONTE_CARD = [
+  { hole:1,  yards:486, par:5, hcp:9  },
+  { hole:2,  yards:311, par:4, hcp:13 },
+  { hole:3,  yards:359, par:4, hcp:3  },
+  { hole:4,  yards:158, par:3, hcp:15 },
+  { hole:5,  yards:299, par:4, hcp:17 },
+  { hole:6,  yards:180, par:3, hcp:5  },
+  { hole:7,  yards:362, par:4, hcp:1  },
+  { hole:8,  yards:364, par:4, hcp:11 },
+  { hole:9,  yards:517, par:5, hcp:7  },
+  { hole:10, yards:279, par:4, hcp:18 },
+  { hole:11, yards:322, par:4, hcp:6  },
+  { hole:12, yards:143, par:3, hcp:16 },
+  { hole:13, yards:495, par:5, hcp:10 },
+  { hole:14, yards:201, par:3, hcp:2  },
+  { hole:15, yards:312, par:4, hcp:12 },
+  { hole:16, yards:414, par:4, hcp:4  },
+  { hole:17, yards:481, par:5, hcp:14 },
+  { hole:18, yards:365, par:4, hcp:8  },
+];
+
+var BLACK_HORSE_CARD = [
+  { hole:1,  yards:454, par:5, hcp:3  },
+  { hole:2,  yards:182, par:3, hcp:9  },
+  { hole:3,  yards:336, par:4, hcp:11 },
+  { hole:4,  yards:353, par:4, hcp:1  },
+  { hole:5,  yards:152, par:3, hcp:17 },
+  { hole:6,  yards:228, par:4, hcp:15 },
+  { hole:7,  yards:318, par:4, hcp:13 },
+  { hole:8,  yards:484, par:5, hcp:5  },
+  { hole:9,  yards:362, par:4, hcp:7  },
+  { hole:10, yards:370, par:4, hcp:10 },
+  { hole:11, yards:388, par:4, hcp:4  },
+  { hole:12, yards:445, par:5, hcp:8  },
+  { hole:13, yards:370, par:4, hcp:2  },
+  { hole:14, yards:343, par:4, hcp:12 },
+  { hole:15, yards:137, par:3, hcp:16 },
+  { hole:16, yards:291, par:4, hcp:14 },
+  { hole:17, yards:157, par:3, hcp:18 },
+  { hole:18, yards:545, par:5, hcp:6  },
+];
+
+var BAYONET_CARD = [
+  { hole:1,  yards:487, par:5, hcp:7  },
+  { hole:2,  yards:313, par:4, hcp:1  },
+  { hole:3,  yards:317, par:4, hcp:17 },
+  { hole:4,  yards:151, par:3, hcp:11 },
+  { hole:5,  yards:304, par:4, hcp:15 },
+  { hole:6,  yards:170, par:3, hcp:13 },
+  { hole:7,  yards:335, par:4, hcp:9  },
+  { hole:8,  yards:539, par:5, hcp:5  },
+  { hole:9,  yards:387, par:4, hcp:3  },
+  { hole:10, yards:464, par:5, hcp:12 },
+  { hole:11, yards:329, par:4, hcp:8  },
+  { hole:12, yards:346, par:4, hcp:4  },
+  { hole:13, yards:388, par:4, hcp:2  },
+  { hole:14, yards:149, par:3, hcp:18 },
+  { hole:15, yards:325, par:4, hcp:14 },
+  { hole:16, yards:325, par:4, hcp:6  },
+  { hole:17, yards:151, par:3, hcp:16 },
+  { hole:18, yards:471, par:5, hcp:10 },
+];
 
 function getResults() { try { return JSON.parse(localStorage.getItem('ltdcup-results') || '{}' ); } catch(e) { return {}; } }
 function saveResults(r) { localStorage.setItem('ltdcup-results', JSON.stringify(r)); }
@@ -1448,6 +1524,14 @@ function computeTeamPoints() {
         <div id="pm-matchup-steps"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- SCORECARD MODAL -->
+<div class="modal-overlay" id="scorecard-modal-overlay" onclick="closeScorecardModal(event)">
+  <div class="modal modal-relative" style="max-width:1100px;width:100%">
+    <button class="modal-close" onclick="closeScorecardModalDirect()">✕</button>
+    <div id="scorecard-modal-content"></div>
   </div>
 </div>
 
@@ -2184,20 +2268,42 @@ function renderUpcomingMatchups(roundId) {
     : '';
   grid.innerHTML = noteHtml + state.matchups.map(function(m, i) {
     if (!m) return '';
-    var dp, bp, dpHcp, bpHcp;
+    var dp, bp, dpHcp, bpHcp, dpPops, bpPops;
     if (isR3) {
       var dPl = getPlayerById(m.dsr);
       var bPl = getPlayerById(m.doe);
       if (!dPl || !bPl) return '';
       dp = [m.dsr]; bp = [m.doe];
-      dpHcp = 'CH ' + hcpFn(dPl.hcp);
-      bpHcp = 'CH ' + hcpFn(bPl.hcp);
+      var dCH = r3CourseHcp(dPl.hcp), bCH = r3CourseHcp(bPl.hcp);
+      dpHcp = 'CH ' + dCH;
+      bpHcp = 'CH ' + bCH;
+      var r3Min = Math.min(dCH, bCH);
+      var dsrP = dCH - r3Min, doeP = bCH - r3Min;
+      dpPops = dsrP + (dsrP === 1 ? ' pop' : ' pops');
+      bpPops = doeP + (doeP === 1 ? ' pop' : ' pops');
+    } else if (roundId === 'r2') {
+      dp = state.dsrPairs[m.dsr];
+      bp = state.doePairs[m.doe];
+      if (!dp || !bp || dp.length < 2 || bp.length < 2) return '';
+      dpHcp = dp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ');
+      bpHcp = bp.map(function(pid){ return 'CH ' + courseHcp(getPlayerById(pid).hcp); }).join(' · ');
+      var dpTeamCH = r2CourseHcp(parseFloat(pHcp(dp)));
+      var bpTeamCH = r2CourseHcp(parseFloat(pHcp(bp)));
+      var r2Min = Math.min(dpTeamCH, bpTeamCH);
+      var dsrTP = dpTeamCH - r2Min, doeTP = bpTeamCH - r2Min;
+      dpPops = dsrTP + (dsrTP === 1 ? ' pop' : ' pops');
+      bpPops = doeTP + (doeTP === 1 ? ' pop' : ' pops');
     } else {
       dp = state.dsrPairs[m.dsr];
       bp = state.doePairs[m.doe];
       if (!dp || !bp || dp.length < 2 || bp.length < 2) return '';
-      dpHcp = dp.map(function(pid){ return 'CH ' + hcpFn(getPlayerById(pid).hcp); }).join(' · ');
-      bpHcp = bp.map(function(pid){ return 'CH ' + hcpFn(getPlayerById(pid).hcp); }).join(' · ');
+      var dpCHs = dp.map(function(pid){ return courseHcp(getPlayerById(pid).hcp); });
+      var bpCHs = bp.map(function(pid){ return courseHcp(getPlayerById(pid).hcp); });
+      dpHcp = dpCHs.map(function(ch){ return 'CH ' + ch; }).join(' · ');
+      bpHcp = bpCHs.map(function(ch){ return 'CH ' + ch; }).join(' · ');
+      var r1Min = Math.min.apply(null, dpCHs.concat(bpCHs));
+      dpPops = dpCHs.map(function(ch){ var p = ch - r1Min; return p + (p === 1 ? ' pop' : ' pops'); }).join(' · ');
+      bpPops = bpCHs.map(function(ch){ var p = ch - r1Min; return p + (p === 1 ? ' pop' : ' pops'); }).join(' · ');
     }
     var dsrLabel = isR3 ? getPlayerById(m.dsr).name.split(' ').pop() : pNames(dp);
     var doeLabel = isR3 ? getPlayerById(m.doe).name.split(' ').pop() : pNames(bp);
@@ -2216,16 +2322,22 @@ function renderUpcomingMatchups(roundId) {
     var teeHtml = m.teeTime
       ? '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;color:var(--gold);letter-spacing:.08em;flex-shrink:0;min-width:82px;text-align:center;line-height:1">' + m.teeTime + '</div>'
       : '';
+    var centerHtml = '<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:5px">'
+      + midHtml
+      + '<button onclick="openScorecardModal(\'' + roundId + '\',' + i + ')" style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;font-family:inherit;white-space:nowrap">View Scorecard</button>'
+      + '</div>';
     var rowHtml = '<div class="matchup-inline-row">'
       + teeHtml
       + '<div class="matchup-inline-side">'
       + '<div class="matchup-inline-names red">' + dsrLabel + '</div>'
       + '<div class="matchup-inline-hcp">' + dpHcp + '</div>'
+      + '<div style="font-size:.7rem;color:rgba(34,197,94,.85);margin-top:1px">' + dpPops + '</div>'
       + '</div>'
-      + midHtml
+      + centerHtml
       + '<div class="matchup-inline-side" style="text-align:right">'
       + '<div class="matchup-inline-names blue">' + doeLabel + '</div>'
       + '<div class="matchup-inline-hcp">' + bpHcp + '</div>'
+      + '<div style="font-size:.7rem;color:rgba(34,197,94,.85);margin-top:1px">' + bpPops + '</div>'
       + '</div>'
       + '</div>';
     return rowHtml;
@@ -2234,6 +2346,130 @@ function renderUpcomingMatchups(roundId) {
 renderUpcomingMatchups('r1');
 renderUpcomingMatchups('r2');
 renderUpcomingMatchups('r3');
+
+/* ---- SCORECARD MODAL ---- */
+function openScorecardModal(roundId, matchupIdx) {
+  var state = roundPairingStates[roundId];
+  var m = state.matchups[matchupIdx];
+  if (!m) return;
+
+  var cfgs = {
+    r1: { card: DEL_MONTE_CARD,    course: 'Old Del Monte Golf Course', round: 'Round 1',     format: 'Best Ball',      date: 'May 22, 2026' },
+    r2: { card: BLACK_HORSE_CARD,  course: 'Black Horse Golf Course',   round: 'Round 2',     format: 'Alternate Shot', date: 'May 23, 2026' },
+    r3: { card: BAYONET_CARD,      course: 'Bayonet Golf Course',       round: 'Final Round', format: 'Singles',        date: 'May 24, 2026' },
+  };
+  var cfg = cfgs[roundId];
+  var card = cfg.card;
+  var front = card.slice(0, 9);
+  var back  = card.slice(9);
+  var sum = function(arr, key) { return arr.reduce(function(s,h){ return s+h[key]; }, 0); };
+  var frontYards = sum(front,'yards'), backYards = sum(back,'yards');
+  var frontPar   = sum(front,'par'),   backPar   = sum(back,'par');
+
+  var players, headerLeft, headerRight;
+  if (roundId === 'r3') {
+    var dp = getPlayerById(m.dsr), bp = getPlayerById(m.doe);
+    if (!dp || !bp) return;
+    var dCH = r3CourseHcp(dp.hcp), bCH = r3CourseHcp(bp.hcp);
+    var minCH = Math.min(dCH, bCH);
+    players = [
+      { name: dp.name, color: '#ef4444', pops: dCH - minCH },
+      { name: bp.name, color: '#60a5fa', pops: bCH - minCH },
+    ];
+    headerLeft = dp.name; headerRight = bp.name;
+  } else {
+    var dsrPair = state.dsrPairs[m.dsr], doePair = state.doePairs[m.doe];
+    if (!dsrPair || !doePair) return;
+    var p1 = getPlayerById(dsrPair[0]), p2 = getPlayerById(dsrPair[1]);
+    var p3 = getPlayerById(doePair[0]), p4 = getPlayerById(doePair[1]);
+    if (!p1 || !p2 || !p3 || !p4) return;
+    var p1Pops, p2Pops, p3Pops, p4Pops;
+    if (roundId === 'r2') {
+      var dsrTeamCH = r2CourseHcp(parseFloat(pHcp(dsrPair)));
+      var doeTeamCH = r2CourseHcp(parseFloat(pHcp(doePair)));
+      var minTeamCH = Math.min(dsrTeamCH, doeTeamCH);
+      p1Pops = p2Pops = dsrTeamCH - minTeamCH;
+      p3Pops = p4Pops = doeTeamCH - minTeamCH;
+    } else {
+      var p1CH = courseHcp(p1.hcp), p2CH = courseHcp(p2.hcp);
+      var p3CH = courseHcp(p3.hcp), p4CH = courseHcp(p4.hcp);
+      var minCH = Math.min(p1CH, p2CH, p3CH, p4CH);
+      p1Pops = p1CH - minCH; p2Pops = p2CH - minCH;
+      p3Pops = p3CH - minCH; p4Pops = p4CH - minCH;
+    }
+    players = [
+      { name: p1.name, color: '#ef4444', pops: p1Pops },
+      { name: p2.name, color: '#ef4444', pops: p2Pops },
+      { name: p3.name, color: '#60a5fa', pops: p3Pops },
+      { name: p4.name, color: '#60a5fa', pops: p4Pops },
+    ];
+    headerLeft = pNames(dsrPair); headerRight = pNames(doePair);
+  }
+
+  var hdrCells = '<th class="sc-lbl">Hole</th>'
+    + front.map(function(h){ return '<th>' + h.hole + '</th>'; }).join('')
+    + '<th class="sc-sub">OUT</th>'
+    + back.map(function(h){ return '<th>' + h.hole + '</th>'; }).join('')
+    + '<th class="sc-sub">IN</th><th class="sc-sub">TOT</th>';
+
+  function dataRow(label, key, outVal, inVal, totVal) {
+    return '<tr><td class="sc-lbl">' + label + '</td>'
+      + front.map(function(h){ return '<td>' + h[key] + '</td>'; }).join('')
+      + '<td class="sc-sub">' + outVal + '</td>'
+      + back.map(function(h){ return '<td>' + h[key] + '</td>'; }).join('')
+      + '<td class="sc-sub">' + inVal + '</td><td class="sc-sub">' + totVal + '</td></tr>';
+  }
+
+  function playerRow(label, color, pops) {
+    function cell(h) {
+      return '<td style="position:relative">'
+        + (h.hcp <= pops ? '<div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:rgba(34,197,94,.7)"></div>' : '')
+        + '</td>';
+    }
+    return '<tr><td class="sc-lbl" style="color:' + color + '">' + label + '</td>'
+      + front.map(cell).join('')
+      + '<td class="sc-sub"></td>'
+      + back.map(cell).join('')
+      + '<td class="sc-sub"></td><td class="sc-sub"></td></tr>';
+  }
+
+  var html = '<div style="padding:24px 28px;border-bottom:1px solid var(--line)">'
+    + '<div style="font-family:\'Teko\',sans-serif;font-size:.8rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:4px">Scorecard · ' + cfg.round + '</div>'
+    + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;letter-spacing:.04em">'
+    + '<span style="color:#ef4444">' + headerLeft + '</span>'
+    + '<span style="color:var(--muted);font-size:1rem;margin:0 14px">vs</span>'
+    + '<span style="color:#60a5fa">' + headerRight + '</span>'
+    + '</div>'
+    + '<div style="color:var(--muted);font-size:.82rem;margin-top:4px">' + cfg.course + ' · ' + cfg.format + ' · ' + cfg.date + '</div>'
+    + '</div>'
+    + '<div style="padding:20px 28px;overflow-x:auto">'
+    + '<table class="sc-table"><thead><tr>' + hdrCells + '</tr></thead><tbody>'
+    + dataRow('Yards', 'yards', frontYards, backYards, frontYards + backYards)
+    + dataRow('Par',   'par',   frontPar,   backPar,   frontPar + backPar)
+    + dataRow('Handicap', 'hcp', '', '', '')
+    + players.map(function(p) {
+        var lbl = p.name + (p.pops > 0 ? ' <span style="font-size:.78em;opacity:.65">(' + p.pops + ')</span>' : '');
+        return playerRow(lbl, p.color, p.pops);
+      }).join('')
+    + '<tr><td class="sc-lbl">Match</td>'
+    + front.map(function(){ return '<td></td>'; }).join('')
+    + '<td class="sc-sub"></td>'
+    + back.map(function(){ return '<td></td>'; }).join('')
+    + '<td class="sc-sub"></td><td class="sc-sub"></td></tr>'
+    + '</tbody></table>'
+    + '</div>';
+
+  document.getElementById('scorecard-modal-content').innerHTML = html;
+  document.getElementById('scorecard-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeScorecardModal(e) {
+  if (e.target === document.getElementById('scorecard-modal-overlay')) closeScorecardModalDirect();
+}
+function closeScorecardModalDirect() {
+  document.getElementById('scorecard-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
 var ROUND_TITLES = {
   r1: 'Round 1 · Old Del Monte',
