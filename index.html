@@ -1002,7 +1002,23 @@ var BAYONET_CARD = [
   { hole:18, yards:471, par:5, hcp:10 },
 ];
 
-function getResults() { try { return JSON.parse(localStorage.getItem('ltdcup-results') || '{}' ); } catch(e) { return {}; } }
+const LOCKED_RESULTS = {
+  r1: {
+    "0": { winner: 'dsr', score: '7 & 6', dsrIds: ['westbrook','conway'],  doeIds: ['cressio','slattery'] },
+    "1": { winner: 'doe', score: '2 & 1', dsrIds: ['neimeyer','hull'],     doeIds: ['bojorquez','peterson'] },
+    "2": { winner: 'draw',score: 'Draw',  dsrIds: ['villamor','javier'],   doeIds: ['doe','lopez'] },
+    "3": { winner: 'dsr', score: '3 & 2', dsrIds: ['gonzalez','li'],       doeIds: ['weekes','flores'] },
+  }
+};
+function getResults() {
+  try {
+    var r = JSON.parse(localStorage.getItem('ltdcup-results') || '{}');
+    Object.keys(LOCKED_RESULTS).forEach(function(round) {
+      r[round] = Object.assign({}, r[round] || {}, LOCKED_RESULTS[round]);
+    });
+    return r;
+  } catch(e) { return Object.assign({}, LOCKED_RESULTS); }
+}
 function saveResults(r) { localStorage.setItem('ltdcup-results', JSON.stringify(r)); }
 
 // Compute overall team match points from localStorage
@@ -2232,11 +2248,30 @@ var roundPairingStates = {
       {dsr:3, doe:3, teeTime:'9:40 AM'},
     ],
   },
-  r2: makeFreshRoundState('r2'),
+  r2: {
+    dsrPool: [],
+    doePool: [],
+    dsrPairs: [['li','gonzalez'],['westbrook','conway'],['neimeyer','hull'],['villamor','javier']],
+    doePairs: [['doe','lopez'],['slattery','cressio'],['peterson','bojorquez'],['weekes','flores']],
+    matchups: [
+      {dsr:0, doe:0, teeTime:'9:00 AM'},
+      {dsr:1, doe:1, teeTime:'9:10 AM'},
+      {dsr:2, doe:2, teeTime:'9:20 AM'},
+      {dsr:3, doe:3, teeTime:'9:30 AM'},
+    ],
+  },
   r3: makeFreshRoundState('r3'),
 };
 var activePairingRound = null;
 var mPendingNom = null;
+var r1MatchupsExpanded = true;
+function toggleR1Matchups() {
+  r1MatchupsExpanded = !r1MatchupsExpanded;
+  var body = document.getElementById('r1-matchups-body');
+  if (body) body.style.display = r1MatchupsExpanded ? '' : 'none';
+  var chev = document.getElementById('r1-banner-chevron');
+  if (chev) chev.textContent = r1MatchupsExpanded ? '▾' : '▸';
+}
 
 function saveRoundStates() {
   try { localStorage.setItem('ltdcup-pairings', JSON.stringify(roundPairingStates)); } catch(e) {}
@@ -2263,10 +2298,39 @@ function renderUpcomingMatchups(roundId) {
     return;
   }
   var roundResults = (getResults()[roundId]) || {};
-  var noteHtml = roundId === 'r1'
-    ? '<div style="padding:10px 14px;color:var(--gold);font-family:\'Teko\',sans-serif;font-size:1.1rem;letter-spacing:.06em;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.22);border-radius:8px;text-align:center;">⚠ PLEASE NOTE: Plan your arrival time as though you are teeing off at 9:00 AM; the course is trying to manage the tee time gap so we all play together.</div>'
-    : '';
-  grid.innerHTML = noteHtml + state.matchups.map(function(m, i) {
+  var noteHtml = '';
+  if (roundId === 'r1') {
+    var r1Dsr = 0, r1Doe = 0;
+    Object.values(roundResults).forEach(function(m) {
+      if (m.winner === 'dsr') r1Dsr++;
+      else if (m.winner === 'doe') r1Doe++;
+      else if (m.winner === 'draw') { r1Dsr += 0.5; r1Doe += 0.5; }
+    });
+    var matchCount = state.matchups.filter(Boolean).length;
+    if (Object.keys(roundResults).length >= matchCount && matchCount > 0) {
+      var dsrFmt = r1Dsr % 1 ? r1Dsr : String(r1Dsr);
+      var doeFmt = r1Doe % 1 ? r1Doe : String(r1Doe);
+      var dsrWins = r1Dsr > r1Doe, doeWins = r1Doe > r1Dsr;
+      noteHtml = '<div onclick="toggleR1Matchups()" style="display:flex;align-items:stretch;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:10px;cursor:pointer;user-select:none">'
+        + '<div style="flex:1;padding:10px 16px;background:rgba(220,38,38,.12);text-align:center">'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--red);text-transform:uppercase;margin-bottom:2px">Drawshank Redemption</div>'
+        + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:var(--red);line-height:1">' + dsrFmt + '</div>'
+        + (dsrWins ? '<div style="font-size:.6rem;color:var(--red);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Wins the day</div>' : '')
+        + '</div>'
+        + '<div style="padding:10px 12px;text-align:center;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;border-left:1px solid var(--line);border-right:1px solid var(--line)">'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase">Round 1</div>'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase">Final</div>'
+        + '<div id="r1-banner-chevron" style="font-size:.8rem;color:var(--muted);margin-top:4px">' + (r1MatchupsExpanded ? '▾' : '▸') + '</div>'
+        + '</div>'
+        + '<div style="flex:1;padding:10px 16px;background:rgba(37,99,235,.08);text-align:center">'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:#60a5fa;text-transform:uppercase;margin-bottom:2px">Doe Boys</div>'
+        + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:#3b82f6;line-height:1">' + doeFmt + '</div>'
+        + (doeWins ? '<div style="font-size:.6rem;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Wins the day</div>' : '')
+        + '</div>'
+        + '</div>';
+    }
+  }
+  var matchupsBody = state.matchups.map(function(m, i) {
     if (!m) return '';
     var dp, bp, dpHcp, bpHcp, dpPops, bpPops;
     if (isR3) {
@@ -2342,6 +2406,10 @@ function renderUpcomingMatchups(roundId) {
       + '</div>';
     return rowHtml;
   }).join('');
+  if (roundId === 'r1') {
+    matchupsBody = '<div id="r1-matchups-body" style="display:' + (r1MatchupsExpanded ? '' : 'none') + '">' + matchupsBody + '</div>';
+  }
+  grid.innerHTML = noteHtml + matchupsBody;
 }
 renderUpcomingMatchups('r1');
 renderUpcomingMatchups('r2');
