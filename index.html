@@ -1008,7 +1008,16 @@ const LOCKED_RESULTS = {
     "1": { winner: 'doe', score: '2 & 1', dsrIds: ['neimeyer','hull'],     doeIds: ['bojorquez','peterson'] },
     "2": { winner: 'draw',score: 'Draw',  dsrIds: ['villamor','javier'],   doeIds: ['doe','lopez'] },
     "3": { winner: 'dsr', score: '3 & 2', dsrIds: ['gonzalez','li'],       doeIds: ['weekes','flores'] },
-  }
+  },
+  r2: {
+    "0": { winner: 'dsr', score: '3 & 2', dsrIds: ['li','gonzalez'],       doeIds: ['doe','lopez'] },
+    "1": { winner: 'dsr', score: '3 & 2', dsrIds: ['westbrook','conway'],  doeIds: ['slattery','cressio'] },
+    "2": { winner: 'draw',score: 'Draw',  dsrIds: ['neimeyer','hull'],     doeIds: ['peterson','bojorquez'] },
+    "3": { winner: 'dsr', score: '7 & 6', dsrIds: ['villamor','javier'],   doeIds: ['weekes','flores'] },
+  },
+  r3: {
+    "7": { winner: 'draw', score: 'Draw', dsrIds: ['neimeyer'], doeIds: ['weekes'] },
+  },
 };
 function getResults() {
   try {
@@ -1097,41 +1106,17 @@ function computeTeamPoints() {
       </div>
     </div>
     <div class="upcoming-matchups">
-      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 1: Old Del Monte · 4 pts</div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;">
-        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-          <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FORMAT</span> &nbsp;Better Ball</span>
-          <span style="color:rgba(255,255,255,.15)">|</span>
-          <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FIRST TEE TIME</span> &nbsp;9:00 AM</span>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">
-          <span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;white-space:nowrap;">DRESS CODE</span>
-          <span style="color:#60a5fa;white-space:nowrap;">Doe Boys — Black Shirt · Grey Pants/Shorts · White Hat</span>
-          <span style="color:rgba(255,255,255,.15)">|</span>
-          <span style="color:#f87171;white-space:nowrap;">Drawshank — Grey Shirt · Black Pants/Shorts · Black Hat</span>
-        </div>
-        <div style="color:var(--muted);border-top:1px solid var(--line);padding-top:8px;">
-          ⛳ Old Del Monte has no driving range — we recommend using the range at <a href="https://www.google.com/maps/place/monterey+pines+golf+course/data=!4m2!3m1!1s0x808de5ac88d478ad:0x5a335585f8348b97?sa=X&ved=1t:242&ictx=111" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline;text-underline-offset:3px;">Monterey Pines Golf Course</a>, right around the corner.
+      <div class="upcoming-matchups-label">🏁 Completed Rounds · Old Del Monte & Black Horse · 8 pts</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div id="r1-banner-cell"></div>
+        <div id="r2-banner-cell"></div>
+      </div>
+      <div id="r1r2-expanded" style="display:none;margin-top:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div id="upcoming-matchups-grid-r1"></div>
+          <div id="upcoming-matchups-grid-r2"></div>
         </div>
       </div>
-      <div class="matchup-inline-grid" id="upcoming-matchups-grid-r1" style="grid-template-columns:1fr"><!-- rendered by JS --></div>
-    </div>
-    <div class="upcoming-matchups">
-      <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Round 2: Black Horse · 4 pts</div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;">
-        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-          <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FORMAT</span> &nbsp;Alternate Shot</span>
-          <span style="color:rgba(255,255,255,.15)">|</span>
-          <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FIRST TEE TIME</span> &nbsp;9:00 AM</span>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;">
-          <span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;white-space:nowrap;">DRESS CODE</span>
-          <span style="color:#60a5fa;white-space:nowrap;">Doe Boys — Grey Shirt · Black Pants/Shorts · Black Hat</span>
-          <span style="color:rgba(255,255,255,.15)">|</span>
-          <span style="color:#f87171;white-space:nowrap;">Drawshank — Black Shirt · Grey Pants/Shorts · White Hat</span>
-        </div>
-      </div>
-      <div class="matchup-inline-grid" id="upcoming-matchups-grid-r2"><!-- rendered by JS --></div>
     </div>
     <div class="upcoming-matchups">
       <div class="upcoming-matchups-label">⚔️ Upcoming Matchups · Final Round: Bayonet · 8 pts</div>
@@ -1141,8 +1126,11 @@ function computeTeamPoints() {
           <span style="color:rgba(255,255,255,.15)">|</span>
           <span style="color:var(--muted)"><span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">FIRST TEE TIME</span> &nbsp;10:10 AM</span>
         </div>
-        <div style="color:var(--muted);border-top:1px solid var(--line);padding-top:8px;">
-          <span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;">DRESS CODE</span> &nbsp;TBD — chosen by the leading team after Saturday's round.
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;border-top:1px solid var(--line);padding-top:8px;">
+          <span style="color:var(--gold);font-family:'Teko',sans-serif;letter-spacing:.08em;font-size:.85rem;white-space:nowrap;">DRESS CODE</span>
+          <span style="color:#60a5fa;white-space:nowrap;">Doe Boys — Grey Shirt · Grey Pants · Black Hat</span>
+          <span style="color:rgba(255,255,255,.15)">|</span>
+          <span style="color:#f87171;white-space:nowrap;">Drawshank — Black Shirt · Black Pants · White Hat</span>
         </div>
       </div>
       <div class="matchup-inline-grid" id="upcoming-matchups-grid-r3"><!-- rendered by JS --></div>
@@ -2260,17 +2248,32 @@ var roundPairingStates = {
       {dsr:3, doe:3, teeTime:'9:30 AM'},
     ],
   },
-  r3: makeFreshRoundState('r3'),
+  r3: {
+    dsrPlayers: ['westbrook','neimeyer','conway','villamor','javier','gonzalez','hull','li'],
+    doePlayers: ['doe','bojorquez','cressio','slattery','flores','peterson','weekes','lopez'],
+    matchups: [
+      { dsr: 'villamor',  doe: 'doe',       teeTime: '10:10 AM' },
+      { dsr: 'conway',    doe: 'bojorquez',  teeTime: '10:10 AM' },
+      { dsr: 'hull',      doe: 'lopez',      teeTime: '10:20 AM' },
+      { dsr: 'gonzalez',  doe: 'cressio',    teeTime: '10:20 AM' },
+      { dsr: 'javier',    doe: 'peterson',   teeTime: '10:30 AM' },
+      { dsr: 'westbrook', doe: 'slattery',   teeTime: '10:30 AM' },
+      { dsr: 'li',        doe: 'flores',     teeTime: '10:40 AM' },
+      { dsr: 'neimeyer',  doe: 'weekes',     teeTime: '10:40 AM' },
+    ],
+  },
 };
 var activePairingRound = null;
 var mPendingNom = null;
-var r1MatchupsExpanded = true;
-function toggleR1Matchups() {
-  r1MatchupsExpanded = !r1MatchupsExpanded;
-  var body = document.getElementById('r1-matchups-body');
-  if (body) body.style.display = r1MatchupsExpanded ? '' : 'none';
-  var chev = document.getElementById('r1-banner-chevron');
-  if (chev) chev.textContent = r1MatchupsExpanded ? '▾' : '▸';
+var completedRoundsExpanded = false;
+function toggleCompletedRounds() {
+  completedRoundsExpanded = !completedRoundsExpanded;
+  var body = document.getElementById('r1r2-expanded');
+  if (body) body.style.display = completedRoundsExpanded ? '' : 'none';
+  ['r1', 'r2'].forEach(function(r) {
+    var chev = document.getElementById(r + '-banner-chevron');
+    if (chev) chev.textContent = completedRoundsExpanded ? '▾' : '▸';
+  });
 }
 
 function saveRoundStates() {
@@ -2311,7 +2314,7 @@ function renderUpcomingMatchups(roundId) {
       var dsrFmt = r1Dsr % 1 ? r1Dsr : String(r1Dsr);
       var doeFmt = r1Doe % 1 ? r1Doe : String(r1Doe);
       var dsrWins = r1Dsr > r1Doe, doeWins = r1Doe > r1Dsr;
-      noteHtml = '<div onclick="toggleR1Matchups()" style="display:flex;align-items:stretch;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:10px;cursor:pointer;user-select:none">'
+      noteHtml = '<div onclick="toggleCompletedRounds()" style="display:flex;align-items:stretch;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;user-select:none">'
         + '<div style="flex:1;padding:10px 16px;background:rgba(220,38,38,.12);text-align:center">'
         + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--red);text-transform:uppercase;margin-bottom:2px">Drawshank Redemption</div>'
         + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:var(--red);line-height:1">' + dsrFmt + '</div>'
@@ -2320,7 +2323,37 @@ function renderUpcomingMatchups(roundId) {
         + '<div style="padding:10px 12px;text-align:center;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;border-left:1px solid var(--line);border-right:1px solid var(--line)">'
         + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase">Round 1</div>'
         + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase">Final</div>'
-        + '<div id="r1-banner-chevron" style="font-size:.8rem;color:var(--muted);margin-top:4px">' + (r1MatchupsExpanded ? '▾' : '▸') + '</div>'
+        + '<div id="r1-banner-chevron" style="font-size:.8rem;color:var(--muted);margin-top:4px">' + (completedRoundsExpanded ? '▾' : '▸') + '</div>'
+        + '</div>'
+        + '<div style="flex:1;padding:10px 16px;background:rgba(37,99,235,.08);text-align:center">'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:#60a5fa;text-transform:uppercase;margin-bottom:2px">Doe Boys</div>'
+        + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:#3b82f6;line-height:1">' + doeFmt + '</div>'
+        + (doeWins ? '<div style="font-size:.6rem;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Wins the day</div>' : '')
+        + '</div>'
+        + '</div>';
+    }
+  } else if (roundId === 'r2') {
+    var r2Dsr = 0, r2Doe = 0;
+    Object.values(roundResults).forEach(function(m) {
+      if (m.winner === 'dsr') r2Dsr++;
+      else if (m.winner === 'doe') r2Doe++;
+      else if (m.winner === 'draw') { r2Dsr += 0.5; r2Doe += 0.5; }
+    });
+    var matchCount = state.matchups.filter(Boolean).length;
+    if (Object.keys(roundResults).length >= matchCount && matchCount > 0) {
+      var dsrFmt = r2Dsr % 1 ? r2Dsr : String(r2Dsr);
+      var doeFmt = r2Doe % 1 ? r2Doe : String(r2Doe);
+      var dsrWins = r2Dsr > r2Doe, doeWins = r2Doe > r2Dsr;
+      noteHtml = '<div onclick="toggleCompletedRounds()" style="display:flex;align-items:stretch;background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;user-select:none">'
+        + '<div style="flex:1;padding:10px 16px;background:rgba(220,38,38,.12);text-align:center">'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--red);text-transform:uppercase;margin-bottom:2px">Drawshank Redemption</div>'
+        + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:var(--red);line-height:1">' + dsrFmt + '</div>'
+        + (dsrWins ? '<div style="font-size:.6rem;color:var(--red);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Wins the day</div>' : '')
+        + '</div>'
+        + '<div style="padding:10px 12px;text-align:center;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;border-left:1px solid var(--line);border-right:1px solid var(--line)">'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase">Round 2</div>'
+        + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase">Final</div>'
+        + '<div id="r2-banner-chevron" style="font-size:.8rem;color:var(--muted);margin-top:4px">' + (completedRoundsExpanded ? '▾' : '▸') + '</div>'
         + '</div>'
         + '<div style="flex:1;padding:10px 16px;background:rgba(37,99,235,.08);text-align:center">'
         + '<div style="font-family:\'Teko\',sans-serif;font-size:.65rem;letter-spacing:.15em;color:#60a5fa;text-transform:uppercase;margin-bottom:2px">Doe Boys</div>'
@@ -2406,10 +2439,13 @@ function renderUpcomingMatchups(roundId) {
       + '</div>';
     return rowHtml;
   }).join('');
-  if (roundId === 'r1') {
-    matchupsBody = '<div id="r1-matchups-body" style="display:' + (r1MatchupsExpanded ? '' : 'none') + '">' + matchupsBody + '</div>';
+  if (roundId === 'r1' || roundId === 'r2') {
+    var bannerCell = document.getElementById(roundId + '-banner-cell');
+    if (bannerCell) bannerCell.innerHTML = noteHtml;
+    grid.innerHTML = matchupsBody;
+  } else {
+    grid.innerHTML = noteHtml + matchupsBody;
   }
-  grid.innerHTML = noteHtml + matchupsBody;
 }
 renderUpcomingMatchups('r1');
 renderUpcomingMatchups('r2');
@@ -3087,20 +3123,28 @@ function openMatchupsView(round) {
   if (!hasAny) {
     html += '<p style="color:var(--muted);font-size:.9rem">No matchups have been set for this round yet. Use the Set Pairings button to create them.</p>';
   } else if (round === 'r3') {
+    var r3Rows = '';
     matchups.forEach(function(m, i) {
       if (!m) return;
       var dp = getPlayerById(m.dsr);
       var bp = getPlayerById(m.doe);
-      html += '<div class="matchup-card" style="margin-bottom:8px">'
-        + '<div class="matchup-pair-display">'
-        + '<div class="matchup-pair-names" style="color:#ef4444">' + dp.name.split(' ').pop() + '</div>'
-        + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(dp.hcp) + '</div>'
-        + '</div><div class="matchup-vs">VS</div>'
-        + '<div class="matchup-pair-display">'
-        + '<div class="matchup-pair-names" style="color:#60a5fa">' + bp.name.split(' ').pop() + '</div>'
-        + '<div class="matchup-pair-hcp">CH ' + r3CourseHcp(bp.hcp) + '</div>'
-        + '</div></div>';
+      var teeHtml = m.teeTime
+        ? '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;color:var(--gold);letter-spacing:.08em;flex-shrink:0;min-width:82px;text-align:center;line-height:1">' + m.teeTime + '</div>'
+        : '';
+      r3Rows += '<div class="matchup-inline-row">'
+        + teeHtml
+        + '<div class="matchup-inline-side">'
+        + '<div class="matchup-inline-names red">' + dp.name.split(' ').pop() + '</div>'
+        + '<div class="matchup-inline-hcp">CH ' + r3CourseHcp(dp.hcp) + '</div>'
+        + '</div>'
+        + '<div class="matchup-inline-vs">VS</div>'
+        + '<div class="matchup-inline-side" style="text-align:right">'
+        + '<div class="matchup-inline-names blue">' + bp.name.split(' ').pop() + '</div>'
+        + '<div class="matchup-inline-hcp">CH ' + r3CourseHcp(bp.hcp) + '</div>'
+        + '</div>'
+        + '</div>';
     });
+    html += '<div style="display:flex;flex-direction:column;gap:8px">' + r3Rows + '</div>';
   } else if (round === 'r1') {
     html += '<div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;">'
       + '<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">'
