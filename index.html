@@ -1061,7 +1061,7 @@ function computeTeamPoints() {
     <div class="next-event-bar">
       <span class="neb-label">Next Event</span>
       <span class="neb-sep">·</span>
-      <span>Round 1: Old Del Monte</span>
+      <span>Final Round: Bayonet</span>
       <span class="neb-sep">·</span>
       <span class="neb-time" id="neb-time">--d --h --m --s</span>
     </div>
@@ -1227,8 +1227,7 @@ function computeTeamPoints() {
           <div><div class="course-name">Old Del Monte Golf Course</div><div class="course-loc">Monterey, CA · Est. 1897 · 4 pts available</div></div>
         </div>
         <div class="sched-actions">
-          <button class="sched-btn btn-matchups" onclick="openMatchupsView('r1')">See Matchups</button>
-          <button class="sched-btn btn-results" onclick="openResultsModal('r1')">Enter Results</button>
+          <button class="sched-btn btn-results" onclick="openResultsModal('r1')">View Results</button>
         </div>
       </div>
       <div class="sched-card">
@@ -1244,9 +1243,7 @@ function computeTeamPoints() {
           <div><div class="course-name">Black Horse Golf Course</div><div class="course-loc">Fort Ord, Monterey, CA · 4 pts available</div></div>
         </div>
         <div class="sched-actions">
-          <button class="sched-btn btn-pairings" onclick="openPairingsModal('r2')">Set Pairings</button>
-          <button class="sched-btn btn-matchups" onclick="openMatchupsView('r2')">See Matchups</button>
-          <button class="sched-btn btn-results" onclick="openResultsModal('r2')">Enter Results</button>
+          <button class="sched-btn btn-results" onclick="openResultsModal('r2')">View Results</button>
         </div>
       </div>
       <div class="sched-card" id="final-sched">
@@ -1262,7 +1259,6 @@ function computeTeamPoints() {
           <div><div class="course-name">Bayonet Golf Course</div><div class="course-loc">Fort Ord, Monterey, CA · 8 pts available</div></div>
         </div>
         <div class="sched-actions">
-          <button class="sched-btn btn-pairings" onclick="openPairingsModal('r3')">Set Matchups</button>
           <button class="sched-btn btn-matchups" onclick="openMatchupsView('r3')">See Matchups</button>
           <button class="sched-btn btn-results" onclick="openResultsModal('r3')">Enter Results</button>
         </div>
@@ -1546,7 +1542,7 @@ function computeTeamPoints() {
 
 /* ---- COUNTDOWN ---- */
 (function tick() {
-  const target = new Date('2026-05-22T08:00:00');
+  const target = new Date('2026-05-24T10:10:00-07:00');
   const now = new Date();
   const diff = target - now;
   if (diff > 0) {
@@ -2416,7 +2412,7 @@ function renderUpcomingMatchups(roundId) {
     } else {
       midHtml = '<div class="matchup-inline-vs">VS</div>';
     }
-    var teeHtml = m.teeTime
+    var teeHtml = (m.teeTime && roundId !== 'r1' && roundId !== 'r2')
       ? '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;color:var(--gold);letter-spacing:.08em;flex-shrink:0;min-width:82px;text-align:center;line-height:1">' + m.teeTime + '</div>'
       : '';
     var centerHtml = '<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:5px">'
