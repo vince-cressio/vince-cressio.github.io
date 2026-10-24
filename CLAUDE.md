@@ -36,7 +36,7 @@ assets/js/pages/*.js   one script per page
 
 - Every page loads, in order: papaparse → data.js → calc.js → ui.js → layout.js → its page script (all `defer`).
 - **Read columns by header name only.** `data.js` ignores blank and duplicate headers (Scorecards has ~20 unlabeled helper columns) and drops rows missing `REQUIRED` keys.
-- **Publish rule:** an event's results and scorecards are visible only if `status` is complete or its id is in `LTD.CONFIG.previewEvents`. `Calc.model()` enforces this, so pages should get results and rounds from the model, not from raw tabs.
+- **Publish rule:** an event's results and scorecards are visible only if `status` is complete or its id is in `LTD.CONFIG.previewEvents`. `LTD.isPreview()` (the "Test data" banner) is true only while an event is listed and not yet complete. `Calc.model()` enforces this, so pages should get results and rounds from the model, not from raw tabs.
 - Sheet text must pass through `UI.esc()` before going into `innerHTML`.
 - Skins, standings and hole stats are computed in `calc.js`. The sheet's Standings, Stats, Hole Stats and Skins tabs are intentionally unused.
 

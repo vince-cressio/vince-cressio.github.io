@@ -18,7 +18,7 @@ Add `?refresh` to any URL to skip the 5-minute data cache.
 2. Set the event's `status` in **Events** to `complete`. Results stay hidden until you do this.
 3. Results, skins, standings, player profiles and course hole stats all update within a few minutes, because Google's published CSV lags a bit.
 
-To show an event's results *before* it's marked complete (for example, test data), add its `event_id` to `previewEvents` in `assets/js/data.js`. Those results appear with a "Test data" banner. **`E2027-01` is in that list right now; remove it once the real opener scores are in and the event is marked complete.**
+To show an event's results *before* it's marked complete (for example, test data), add its `event_id` to `previewEvents` in `assets/js/data.js`. Those results appear with a "Test data" banner until the event's status is set to `complete`; then the banner disappears on its own, with no code change needed. (`E2027-01` is in that list right now. Taking it out later is optional tidying.)
 
 ## How things are calculated
 

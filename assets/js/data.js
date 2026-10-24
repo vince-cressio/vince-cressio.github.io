@@ -42,7 +42,8 @@ const LTD = (() => {
     cacheMinutes: 5,
     // Results normally appear only once an event's status is
     // "complete". Events listed here are published early and shown
-    // with a test-data banner.
+    // with a test-data banner until their status becomes complete,
+    // so leaving an id here after the event is harmless.
     previewEvents: ['E2027-01'],
     skinBuyIn: 10,
   };
@@ -142,7 +143,7 @@ const LTD = (() => {
 
   // ---- event helpers ----
   function isComplete(ev) { return /^(complete|completed|final|done)$/i.test(str(ev.status)); }
-  function isPreview(ev) { return CONFIG.previewEvents.includes(ev.event_id); }
+  function isPreview(ev) { return CONFIG.previewEvents.includes(ev.event_id) && !isComplete(ev); }
   function isPublished(ev) { return isComplete(ev) || isPreview(ev); }
   function isCup(ev) { return /cup/i.test(str(ev.series)); }
   function season(ev) {
