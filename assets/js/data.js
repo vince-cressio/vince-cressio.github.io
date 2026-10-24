@@ -44,7 +44,7 @@ const LTD = (() => {
     // "complete". Events listed here are published early and shown
     // with a test-data banner until their status becomes complete,
     // so leaving an id here after the event is harmless.
-    previewEvents: ['E2027-01'],
+    previewEvents: [],
     skinBuyIn: 10,
   };
 
