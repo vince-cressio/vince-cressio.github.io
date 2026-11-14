@@ -41,7 +41,7 @@
 
   function dateBlock(e) {
     if (!e._date) return '<div class="event-date">TBD<small>Date to come</small></div>';
-    return `<div class="event-date">${UI.fmtDate(e._date, { month: 'short', day: 'numeric' })}
-      <small>${UI.fmtDate(e._date, { weekday: 'long', year: 'numeric' })}</small></div>`;
+    return `<div class="event-date">${UI.eventDay(e)}
+      <small>${UI.isTentative(e) ? UI.fmtDate(e._date, { weekday: 'long' }) + ' · Tentative' : UI.fmtDate(e._date, { weekday: 'long', year: 'numeric' })}</small></div>`;
   }
 })();

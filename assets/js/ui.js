@@ -69,6 +69,16 @@ const UI = (() => {
   }
 
   // Event display helpers
+  // Events with an alt_date aren't locked in yet: "Mar 20 or 27",
+  // "Mar 27 or Apr 3". Otherwise just "Mar 20".
+  function eventDay(ev, month = 'short') {
+    const a = date(ev.date), b = date(ev.alt_date);
+    if (!a) return 'TBD';
+    const first = fmtDate(a, { month, day: 'numeric' });
+    if (!b) return first;
+    return first + ' or ' + fmtDate(b, b.getMonth() === a.getMonth() ? { day: 'numeric' } : { month, day: 'numeric' });
+  }
+  const isTentative = ev => !!date(ev.alt_date);
   function eventCourse(ev, courses) {
     const c = courses && courses.find(x => x.course_id === ev.course_id);
     return str(ev.course_name) || (c ? c.name : '');
@@ -121,5 +131,5 @@ const UI = (() => {
   }
 
   return { esc, $, param, fmtDate, fmtDateTime, dash, fixed, money, pct, toPar, ordinal,
-           initials, avatar, playerLink, statusBadge, empty, previewNotice, error, eventCourse, num, scorecard };
+           initials, avatar, playerLink, statusBadge, empty, previewNotice, error, eventDay, isTentative, eventCourse, num, scorecard };
 })();

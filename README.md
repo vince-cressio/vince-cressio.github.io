@@ -20,6 +20,10 @@ Add `?refresh` to any URL to skip the 5-minute data cache.
 
 To show an event's results *before* it's marked complete (for example, test data), add its `event_id` to `previewEvents` in `assets/js/data.js`. Those results appear with a "Test data" banner until the event's status is set to `complete`; then the banner disappears on its own, with no code change needed. The list is empty right now.
 
+## Tentative dates
+
+If an event's date isn't locked in, put the first choice in `date` and the backup in an `alt_date` column on **Events** (same `YYYY-MM-DD` format). The site shows "Mar 20 or 27 · Tentative", and the home countdown uses the first date. Clear `alt_date` once the date is confirmed.
+
 ## How things are calculated
 
 All math is in `assets/js/calc.js` and comes from the Scorecards hole columns (`h1`–`h18`), `course_hcp`, `gender`, and the stroke indexes in **Holes**:

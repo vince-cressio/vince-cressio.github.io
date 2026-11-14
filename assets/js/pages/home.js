@@ -13,13 +13,16 @@
         <p class="muted">The next season’s schedule hasn’t been posted yet.</p></div>`;
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const days = e._date ? Math.round((e._date - today) / 86400000) : null;
-      const when = days == null ? 'Date to be announced' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `In ${days} days`;
+      const tentative = UI.isTentative(e);
+      const when = days == null ? 'Date to be announced' : days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `In ${tentative ? '~' : ''}${days} days`;
       const course = UI.eventCourse(e, m.courses);
       const signup = LTD.str(e.signup_url);
       return `<div class="card" style="box-shadow:var(--shadow);padding:26px">
         <div class="card-title">Next event · ${when}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1.05">${UI.esc(e.name)}</div>
-        <div class="muted" style="margin-top:6px">${e._date ? UI.fmtDate(e._date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'Date TBD'}</div>
+        <div class="muted" style="margin-top:6px">${!e._date ? 'Date TBD' : tentative
+          ? `${UI.fmtDate(e._date, { weekday: 'long' })}, ${UI.eventDay(e, 'long')}, ${e._date.getFullYear()} (tentative)`
+          : UI.fmtDate(e._date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
         <div style="margin-top:4px">${[course && `<a class="player-link" href="/courses.html#${UI.esc(e.course_id)}">${UI.esc(course)}</a>`,
           UI.esc(LTD.str(e.format)), LTD.str(e.entry_fee) && UI.esc(LTD.str(e.entry_fee)) + ' entry'].filter(Boolean).join(' · ')}</div>
         ${days != null && days > 0 ? `<div class="countdown"><div><b>${days}</b><span>day${days === 1 ? '' : 's'}</span></div></div>` : ''}
