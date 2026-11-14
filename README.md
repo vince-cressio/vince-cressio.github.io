@@ -32,7 +32,7 @@ All math is in `assets/js/calc.js` and comes from the Scorecards hole columns (`
 - **Adjusted gross:** each hole is capped at net double bogey. This matches the sheet's `gross` column.
 - **Skins:** gross and net, with no carryovers, and a tie for low voids that hole's skin. One extra gross skin goes to the low adjusted-gross round. Ties are broken by comparing capped hole scores from stroke index 1 upward, like the sheet's tiebreak.
   Each pot is `$10 × players`, divided by the skins awarded in that pot and rounded down. The remainder goes to the club.
-- **Standings:** each player's best 4 regular-season `league_pts` totals in the season. Flights are combined. Cup rounds (`series` = LTD Cup) don't count.
+- **Standings:** each player's best 5 regular-season `league_pts` totals in the season. Flights are combined. Cup rounds (`series` = LTD Cup) don't count. Change `standingsBest` / `seasonEvents` in `assets/js/data.js` if the rule changes.
 - **Hole difficulty:** average gross vs. par across all posted rounds. Rank 1 is the hardest hole.
 
 The sheet's Standings, Stats, Hole Stats and Skins tabs aren't used. The site computes those itself, so unpublished events never leak into them.

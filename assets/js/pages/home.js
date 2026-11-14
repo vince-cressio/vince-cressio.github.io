@@ -74,9 +74,9 @@
     function standingsHtml() {
       const season = m.currentSeason;
       const evs = Calc.seasonEvents(m, season).filter(e => m.resultsByEvent[e.event_id]);
-      const table = Calc.standings(evs, evs.flatMap(e => m.resultsByEvent[e.event_id]), m.players, 4).slice(0, 5);
+      const table = Calc.standings(evs, evs.flatMap(e => m.resultsByEvent[e.event_id]), m.players, LTD.CONFIG.standingsBest).slice(0, 5);
       return `<div class="card">
-        <div class="card-title">${season || ''} Standings · best 4 of 5</div>
+        <div class="card-title">${season || ''} Standings · best ${LTD.CONFIG.standingsBest} of ${LTD.CONFIG.seasonEvents}</div>
         ${table.length ? `<table class="data" style="font-size:.9rem"><tbody>${table.map(p => `<tr>
             <td style="width:44px"><span class="pos ${p.rank === 1 ? 'pos-1' : ''}">${p.tied ? 'T' : ''}${p.rank}</span></td>
             <td><div class="player-cell">${UI.avatar(m.playersById[p.player_id] || { name: p.name })}${UI.playerLink(p.player_id, p.name)}</div></td>

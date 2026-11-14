@@ -1,4 +1,4 @@
-/* Season standings — best 4 of 5 regular-season events, flights combined. */
+/* Season standings — best N of the regular-season events (LTD.CONFIG), flights combined. */
 (async () => {
   const app = UI.$('#app');
   try {
@@ -10,7 +10,7 @@
     const regular = m.events.filter(e => !e._cup && e._season === season);
     const counted = Calc.seasonEvents(m, season).filter(e => m.resultsByEvent[e.event_id]);
     const results = counted.flatMap(e => m.resultsByEvent[e.event_id]);
-    const table = Calc.standings(counted, results, m.players, 4);
+    const table = Calc.standings(counted, results, m.players, LTD.CONFIG.standingsBest);
 
     const seasons = m.seasons.filter(s => m.events.some(e => !e._cup && e._season === s));
     const picker = seasons.length > 1 ? `<select class="select" id="season-pick">${seasons.slice().reverse().map(s =>
@@ -28,7 +28,7 @@
         <div class="table-wrap"><table class="data">
           <thead><tr><th>Pos</th><th>Player</th>
             ${cols.map((e, i) => `<th class="c" title="${UI.esc(e.name)}">E${i + 1}</th>`).join('')}
-            <th class="r">Events</th><th class="r">Wins</th><th class="r">Best 4</th><th class="r">Dropped</th><th class="r">Back</th></tr></thead>
+            <th class="r">Events</th><th class="r">Wins</th><th class="r">Best ${LTD.CONFIG.standingsBest}</th><th class="r">Dropped</th><th class="r">Back</th></tr></thead>
           <tbody>${table.map(p => {
             const pts = Object.fromEntries(p.scores.map(s => [s.event_id, s.pts]));
             return `<tr>
@@ -50,7 +50,7 @@
         </table></div>
         <div class="legend" style="margin-top:10px">
           ${cols.map((e, i) => `<span>E${i + 1} = ${UI.esc(e.name)}</span>`).join('')}
-          <span><s>12</s> = dropped (outside best 4)</span>
+          <span><s>12</s> = dropped (outside best ${LTD.CONFIG.standingsBest})</span>
         </div>`;
     }
 

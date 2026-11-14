@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Static multi-page site for the **LTD Golf Club**, a ~30-member league with five stroke-play events per season plus the three-day LTD Cup. Hosted on GitHub Pages at `ltdcup.com`. No build step. All data comes from a Google Sheet published as CSV and is parsed in the browser with PapaParse (cdnjs, pinned 5.4.1). See README.md for the data workflow.
+Static multi-page site for the **LTD Golf Club**, a ~30-member league with six stroke-play events per season plus the three-day LTD Cup. Hosted on GitHub Pages at `ltdcup.com`. No build step. All data comes from a Google Sheet published as CSV and is parsed in the browser with PapaParse (cdnjs, pinned 5.4.1). See README.md for the data workflow.
 
 ## Development
 

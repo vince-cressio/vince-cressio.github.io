@@ -46,6 +46,10 @@ const LTD = (() => {
     // so leaving an id here after the event is harmless.
     previewEvents: [],
     skinBuyIn: 10,
+    // Standings count each player's best `standingsBest` of the
+    // season's `seasonEvents` regular-season events.
+    standingsBest: 5,
+    seasonEvents: 6,
   };
 
   const CACHE_PREFIX = 'ltd:v1:';

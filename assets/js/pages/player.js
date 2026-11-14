@@ -38,7 +38,7 @@
 
     const season = m.currentSeason;
     const seasonEvs = Calc.seasonEvents(m, season).filter(e => m.resultsByEvent[e.event_id]);
-    const table = Calc.standings(seasonEvs, seasonEvs.flatMap(e => m.resultsByEvent[e.event_id]), m.players, 4);
+    const table = Calc.standings(seasonEvs, seasonEvs.flatMap(e => m.resultsByEvent[e.event_id]), m.players, LTD.CONFIG.standingsBest);
     const mine = table.find(r => r.player_id === id);
 
     // Header
@@ -75,7 +75,7 @@
           ${tile(grossList.length ? Math.min(...grossList) : '—', 'Best gross')}
           ${tile(netList.length ? Math.min(...netList) : '—', 'Best net')}
           ${tile(skinsTotal ? UI.money(skinsTotal) : '—', 'Skins won', 'green')}
-          ${mine ? tile(mine.best, season + ' pts (best 4)', 'gold') : ''}
+          ${mine ? tile(mine.best, season + ' pts (best ' + LTD.CONFIG.standingsBest + ')', 'gold') : ''}
         </div>
         ${mix.holes ? `<div class="sub-title">Scoring</div><div class="tiles">
           ${tile(mix.birdies, 'Birdies or better · ' + share(mix.birdies), 'gold')}

@@ -150,7 +150,7 @@ const Calc = (() => {
 
   // Season standings: sum of each player's best `best` event point
   // totals across published regular-season events. Flights combined.
-  function standings(events, results, players, best = 4) {
+  function standings(events, results, players, best = LTD.CONFIG.standingsBest) {
     const evIds = new Set(events.map(e => e.event_id));
     const nameOf = id => (players.find(p => p.player_id === id) || {}).display_name;
     const by = {};
